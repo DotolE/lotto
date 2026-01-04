@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>황금손 로또 - 오류 검증 강화판</title>
+    <title>황금손 로또 - 랜덤 꿀팁 기능 추가</title>
     
-    <meta name="description" content="엄격한 오류 검증 기능이 추가된 로또 번호 생성기. 고정수, 제외수 충돌 방지 및 5게임 자동 생성.">
+    <meta name="description" content="매번 새로운 로또 분석 팁과 함께 번호를 생성하세요. 꿈 해몽, 통계, 전략 등 다양한 정보를 제공합니다.">
     
     <style>
         @font-face {
@@ -46,7 +46,7 @@
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2), 2px 5px 5px rgba(0,0,0,0.15);
         }
 
-        /* 옵션 패널 */
+        /* 옵션 패널 스타일 */
         .option-toggle-btn {
             background: #e3f2fd; border: 1px solid #2196F3; color: #1976D2;
             padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;
@@ -62,7 +62,6 @@
             width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
             box-sizing: border-box; font-size: 15px;
         }
-        .input-field:focus { outline: none; border-color: #2196F3; background: #fff; }
 
         .main-btn {
             width: 100%; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
@@ -88,8 +87,17 @@
         }
         .history-list { font-size: 0.9rem; max-height: 200px; overflow-y: auto; }
         
-        .content-box { text-align: left; margin-top: 50px; padding-top: 20px; border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; }
-        .content-box h3 { color: #FF5722; margin-top: 30px; border-left: 4px solid #FF5722; padding-left: 10px; }
+        /* 랜덤 팁 박스 스타일 */
+        .content-box { 
+            text-align: left; margin-top: 50px; padding-top: 20px; 
+            border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; 
+            animation: fadeIn 0.8s;
+        }
+        .content-box h3 { color: #FF5722; margin-top: 10px; border-left: 4px solid #FF5722; padding-left: 10px; }
+        .tip-badge {
+            background: #FF5722; color: white; padding: 2px 8px; border-radius: 10px;
+            font-size: 11px; vertical-align: middle; margin-right: 5px;
+        }
 
         .yellow { background-color: #fbc400; } .blue { background-color: #69c8f2; }
         .red { background-color: #ff7272; } .gray { background-color: #aaaaaa; } .green { background-color: #b0d840; }
@@ -108,10 +116,9 @@
         </div>
 
         <h1>🎰 이번 주 주인공은 나!</h1>
-        <p class="subtitle">엄격한 검증 시스템 가동 중</p>
+        <p class="subtitle">매일 새로운 팁과 함께하는 로또 생활</p>
         
         <button class="option-toggle-btn" onclick="toggleOptions()">⚙️ 고정수/제외수 설정</button>
-        
         <div id="option-panel">
             <div class="input-group">
                 <label>📌 고정수 (무조건 포함 / 최대 5개)</label>
@@ -120,10 +127,6 @@
             <div class="input-group">
                 <label>🚫 제외수 (절대 안 나옴)</label>
                 <input type="text" id="exclude-nums" class="input-field" placeholder="예: 4, 13 (쉼표로 구분)">
-            </div>
-            <div style="font-size:13px; color:#d32f2f; background:#ffebee; padding:10px; border-radius:5px;">
-                ⚠️ 1~45 사이 숫자만 입력 가능합니다.<br>
-                ⚠️ 고정수와 제외수는 겹칠 수 없습니다.
             </div>
         </div>
 
@@ -147,10 +150,8 @@
             <div id="history-list" class="history-list"><div style="color:#ccc;">기록 없음</div></div>
         </div>
         
-        <div class="content-box">
-            <h3>📊 확률을 높이는 전략</h3>
-            <p>자주 나오는 번호나 개인적인 행운의 숫자를 고정수로 설정하세요. 반대로 최근 너무 자주 나와서 안 나올 것 같은 번호는 제외수로 빼버리세요.</p>
-        </div>
+        <div id="random-tip-area" class="content-box">
+            </div>
     </div>
 
 <script>
@@ -158,98 +159,120 @@
     const shareUrl = 'https://mylotto123.com';
     let currentNumbers = []; 
 
+    // ✅ 랜덤 팁 데이터 (5가지)
+    const tips = [
+        {
+            title: "📊 로또 확률의 수학적 분석",
+            content: `
+                <p>로또 1등에 당첨될 확률은 약 814만 분의 1입니다. 이는 벼락을 맞을 확률보다 낮다고 하죠. 하지만 수학적으로 모든 번호 조합은 나올 확률이 <strong>동일(독립 시행)</strong>합니다.</p>
+                <p>즉, 지난주에 1번이 나왔다고 해서 이번 주에 1번이 덜 나오거나 더 나오지 않습니다. 오직 '무작위성'을 믿으세요!</p>`
+        },
+        {
+            title: "🌙 대박을 부르는 꿈 해몽",
+            content: `
+                <p>혹시 어젯밤 이런 꿈을 꾸셨나요? 로또 당첨자들이 자주 꾸는 3대 길몽입니다.</p>
+                <ul>
+                    <li><strong>🐷 돼지 꿈:</strong> 재물운의 상징! 떼돈이 들어올 징조입니다.</li>
+                    <li><strong>👴 조상님 꿈:</strong> 밝은 얼굴로 나타나셨다면 큰 행운이 옵니다.</li>
+                    <li><strong>🔥 불이 나는 꿈:</strong> 집이 활활 탈수록 재산이 불어납니다.</li>
+                </ul>`
+        },
+        {
+            title: "🔥 고수들의 전략: 핫 & 콜드",
+            content: `
+                <p>번호를 고를 때 <strong>'최근 트렌드'</strong>를 참고해보세요.</p>
+                <ul>
+                    <li><strong>핫(Hot) 넘버:</strong> 최근 5주간 자주 나온 번호입니다. 기세가 좋다고 판단할 때 넣습니다.</li>
+                    <li><strong>콜드(Cold) 넘버:</strong> 오랫동안 나오지 않은 번호입니다. "이제 나올 때가 됐다"고 생각할 때 씁니다.</li>
+                </ul>`
+        },
+        {
+            title: "🍀 1등 당첨자들의 공통점?",
+            content: `
+                <p>로또 당첨자 설문조사에 따르면 흥미로운 공통점들이 있습니다.</p>
+                <ul>
+                    <li><strong>꾸준함:</strong> 대부분 1년 이상 매주 꾸준히 구매한 사람들입니다.</li>
+                    <li><strong>소액 구매:</strong> 한 번에 많이 사기보다 5천 원~1만 원씩 즐기는 경우가 많습니다.</li>
+                    <li><strong>토요일:</strong> 구매 요일 중 토요일 오후가 가장 많았습니다. (물론 그냥 많이 사서 그렇겠죠?)</li>
+                </ul>`
+        },
+        {
+            title: "⚠️ 도박사의 오류를 조심하세요",
+            content: `
+                <p><strong>'도박사의 오류'</strong>란 "앞면이 10번 나왔으니 다음은 무조건 뒷면이겠지?"라고 착각하는 심리입니다.</p>
+                <p>로또 번호는 기억력이 없습니다. 이전 회차의 결과가 이번 회차에 영향을 주지 않습니다. 너무 분석에 스트레스 받지 말고 가볍게 즐기는 것이 정신 건강과 당첨운에 좋습니다!</p>`
+        }
+    ];
+
+    // ✅ 랜덤 팁 출력 함수
+    function displayRandomTip() {
+        const tipBox = document.getElementById('random-tip-area');
+        const randomIndex = Math.floor(Math.random() * tips.length); // 0~4 랜덤
+        const selectedTip = tips[randomIndex];
+
+        tipBox.innerHTML = `
+            <h3><span class="tip-badge">TIP ${randomIndex + 1}</span> ${selectedTip.title}</h3>
+            ${selectedTip.content}
+        `;
+    }
+
+    // --- 기존 기능들 (생성, 저장, 검증 등) ---
+
     function toggleOptions() {
         const panel = document.getElementById('option-panel');
         panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
     }
 
-    // 🔥 [핵심] 엄격한 숫자 파싱 함수 (오류 시 바로 멈춤)
     function parseAndValidate(inputStr, fieldName) {
         if (!inputStr.trim()) return [];
-        
-        // 1. 콤마가 아닌 띄어쓰기만 쓴 경우 체크 (사용자 실수 방지)
         if (inputStr.includes(' ') && !inputStr.includes(',')) {
-            // 숫자 사이에 공백은 있는데 콤마가 하나도 없다면?
-            const tempCheck = inputStr.split(' ').filter(s => s.trim() !== '');
-            if (tempCheck.length > 1) {
-                alert(`⚠️ [${fieldName}] 오류:\n숫자 사이에는 반드시 쉼표(,)를 찍어주세요!`);
-                throw new Error("Comma Missing");
-            }
+            alert(`⚠️ [${fieldName}] 오류:\n숫자 사이에는 반드시 쉼표(,)를 찍어주세요!`);
+            throw new Error("Comma Missing");
         }
-
         const parts = inputStr.split(',');
         const result = [];
-
         for (let p of parts) {
             let strVal = p.trim();
-            if (strVal === '') continue; // 빈 콤마는 무시
-
-            // 2. 숫자가 아닌 문자 체크
+            if (strVal === '') continue;
             if (isNaN(strVal)) {
                 alert(`⚠️ [${fieldName}] 오류:\n"${strVal}"은(는) 숫자가 아닙니다.`);
                 throw new Error("NaN Error");
             }
-
             let num = parseInt(strVal);
-
-            // 3. 범위 체크
             if (num < 1 || num > 45) {
-                alert(`⚠️ [${fieldName}] 오류:\n로또 번호는 1부터 45까지만 가능합니다.\n입력된 값: ${num}`);
+                alert(`⚠️ [${fieldName}] 오류:\n1~45 사이 숫자만 가능합니다. (입력값: ${num})`);
                 throw new Error("Range Error");
             }
-
-            // 4. 중복 체크 (같은 칸 안에서)
             if (result.includes(num)) {
-                alert(`⚠️ [${fieldName}] 오류:\n숫자 ${num}번을 중복해서 입력하셨습니다.`);
+                alert(`⚠️ [${fieldName}] 오류:\n${num}번을 중복 입력하셨습니다.`);
                 throw new Error("Duplicate Error");
             }
-
             result.push(num);
         }
         return result;
     }
 
-    // 번호 생성 실행
     function generateLotto() {
         const fixedInput = document.getElementById('fixed-nums').value;
         const excludeInput = document.getElementById('exclude-nums').value;
 
         try {
-            // 🚨 여기서 엄격하게 검사 (에러나면 catch로 이동하여 중단됨)
             const fixedList = parseAndValidate(fixedInput, "고정수");
             const excludeList = parseAndValidate(excludeInput, "제외수");
 
-            // 5. 고정수 개수 제한
-            if (fixedList.length > 5) {
-                alert("⚠️ 고정수는 최대 5개까지만 설정 가능합니다.\n(나머지는 운에 맡기세요!)");
-                return;
-            }
-
-            // 6. 고정수와 제외수 충돌 체크 (교집합)
+            if (fixedList.length > 5) { alert("⚠️ 고정수는 최대 5개까지!"); return; }
             const conflict = fixedList.filter(x => excludeList.includes(x));
-            if (conflict.length > 0) {
-                alert(`⚠️ 충돌 발생!\n\n${conflict.join(', ')}번은\n'고정수'이면서 동시에 '제외수'일 수 없습니다.\n\n한쪽에서 지워주세요.`);
-                return;
-            }
+            if (conflict.length > 0) { alert(`⚠️ 충돌!\n${conflict.join(', ')}번은 고정수이자 제외수일 수 없습니다.`); return; }
+            if (fixedList.length + excludeList.length > 39) { alert("⚠️ 제외된 숫자가 너무 많습니다."); return; }
 
-            // 7. 남은 숫자 개수 체크
-            if (fixedList.length + excludeList.length > 39) {
-                alert("⚠️ 제외시킨 숫자가 너무 많아서\n번호를 6개 채울 수가 없습니다.");
-                return;
-            }
-
-            // --- 검사 통과! 생성 시작 ---
             const container = document.getElementById('result-container');
             container.innerHTML = ''; 
             currentNumbers = []; 
 
             for (let i = 0; i < 5; i++) {
-                let numbers = [...fixedList]; // 고정수 먼저 넣기
-                
-                // 랜덤 채우기
+                let numbers = [...fixedList];
                 while (numbers.length < 6) {
                     const num = Math.floor(Math.random() * 45) + 1;
-                    // 중복 아니고, 제외수 아니면 추가
                     if (!numbers.includes(num) && !excludeList.includes(num)) {
                         numbers.push(num);
                     }
@@ -257,7 +280,6 @@
                 numbers.sort((a, b) => a - b);
                 currentNumbers.push(numbers);
 
-                // 화면 그리기
                 const row = document.createElement('div');
                 row.className = 'numbers-container';
                 const label = document.createElement('span');
@@ -270,8 +292,7 @@
                     ball.className = `ball ${getColorClass(num)}`;
                     ball.textContent = num;
                     if(fixedList.includes(num)) {
-                        ball.style.border = "2px solid #333"; // 고정수는 테두리 표시
-                        ball.style.transform = "scale(1.1)"; // 약간 강조
+                        ball.style.border = "2px solid #333"; ball.style.transform = "scale(1.1)";
                     }
                     row.appendChild(ball);
                 });
@@ -284,20 +305,15 @@
                     }
                 }, i * 150);
             }
-
-        } catch (e) {
-            // 검증 과정에서 에러가 나면 여기서 멈춤 (아무것도 안 함)
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // 기타 기능들 (저장, 공유, 로딩 등)
     function saveToHistory() {
-        if(currentNumbers.length === 0) return alert("먼저 번호를 생성해주세요!");
+        if(currentNumbers.length === 0) return alert("번호를 먼저 생성해주세요.");
         let history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
         history.unshift({ date: new Date().toLocaleString(), nums: currentNumbers });
         localStorage.setItem('lottoHistory', JSON.stringify(history));
-        alert("저장 완료!");
+        alert("보관함에 저장되었습니다!");
         renderHistory();
     }
 
@@ -310,20 +326,12 @@
             const div = document.createElement('div');
             div.style.borderBottom = "1px solid #eee"; div.style.padding = "10px 0";
             let numText = "";
-            item.nums.forEach((set, i) => {
-                numText += `<div><b>${String.fromCharCode(65 + i)}</b>: ${set.join(', ')}</div>`;
-            });
+            item.nums.forEach((set, i) => { numText += `<div><b>${String.fromCharCode(65 + i)}</b>: ${set.join(', ')}</div>`; });
             div.innerHTML = `<div style="font-size:11px; color:#aaa;">${item.date}</div><div style="font-family:monospace; margin-top:5px;">${numText}</div>`;
             list.appendChild(div);
         });
     }
-    
-    function clearHistory() {
-        if(confirm("모든 기록을 지울까요?")) {
-            localStorage.removeItem('lottoHistory');
-            renderHistory();
-        }
-    }
+    function clearHistory() { if(confirm("기록을 비우시겠습니까?")) { localStorage.removeItem('lottoHistory'); renderHistory(); } }
 
     function fireConfetti() { if(typeof confetti !== 'undefined') confetti({ origin: { y: 0.7 } }); }
     function copyNumbers() {
@@ -336,19 +344,21 @@
     function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
 
+    // ✅ 페이지 로드 시 실행 (팁 출력 포함)
     window.onload = function() {
         try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
-        fetchLottoNumbers(); renderHistory();
+        fetchLottoNumbers(); 
+        renderHistory();
+        displayRandomTip(); // 랜덤 팁 실행
     };
 
     async function fetchLottoNumbers() {
         const resultBox = document.getElementById('latest-win-box');
         const startDate = new Date('2002-12-07');
         const now = new Date();
-        const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
         const daysDiff = (now - startDate) / (1000 * 3600 * 24);
         let round = Math.floor(daysDiff / 7) + 1;
-        if (!isSatAfter9PM && now.getDay() === 6) round -= 1; 
+        if (now.getDay() === 6 && now.getHours() < 21) round -= 1; 
 
         try {
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`);
