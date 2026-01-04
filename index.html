@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>황금손 로또 - QR 당첨 확인 기능 추가</title>
+    <title>황금손 로또 - 무료 분석 & 당첨 확인</title>
     
     <meta name="google-site-verification" content="2KgdugryQOXFn8k0f9ApE60RRK2_W6_HLx0-Q7rhN8s" />
     <meta name="naver-site-verification" content="b83da244a1e5342f9eb5f41a0a00521e799407a3" />
     
-    <meta name="description" content="QR코드로 당첨 확인까지 가능한 무료 로또 분석기. 고정수/제외수 설정, 빅데이터 분석, 비영리 포트폴리오.">
-    <meta name="keywords" content="로또QR, 로또당첨확인, 로또번호생성기, 무료로또">
+    <meta name="description" content="QR코드 스캔, 고정수/제외수 설정, 빅데이터 분석까지. 방문자 1만 명이 선택한 무료 로또 명당.">
+    <meta name="keywords" content="로또번호생성기, 무료로또, 로또QR, 로또당첨확인, 황금손로또">
     <meta name="author" content="황금손">
-    <meta property="og:title" content="💰 황금손 로또 (QR 스캔 가능)">
-    <meta property="og:description" content="카메라로 로또 용지를 스캔해서 바로 당첨을 확인하세요!">
+    <meta property="og:title" content="💰 황금손 로또 (방문자 수 폭발!)">
+    <meta property="og:description" content="QR 스캔으로 당첨 확인하고, 빅데이터 번호 받아가세요.">
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
     
     <style>
@@ -25,8 +25,7 @@
         body {
             font-family: 'GmarketSansMedium', sans-serif;
             background-color: #f0f2f5;
-            display: flex; flex-direction: column;
-            align-items: center;
+            display: flex; flex-direction: column; align-items: center;
             min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
             color: #333;
         }
@@ -89,13 +88,9 @@
         .btn-save { background-color: #2196F3; color: white; }
         .btn-copy { background-color: #34495e; color: white; }
         .btn-kakao { background-color: #FEE500; color: #3c1e1e; }
-        /* QR 스캔 버튼 (검정색) */
         .btn-qr { background-color: #222; color: white; }
 
-        /* QR 리더기 스타일 */
-        #qr-reader-container {
-            display: none; margin-bottom: 20px; border: 5px solid #222; border-radius: 15px; overflow: hidden;
-        }
+        #qr-reader-container { display: none; margin-bottom: 20px; border: 5px solid #222; border-radius: 15px; overflow: hidden; }
         
         .history-box {
             margin-top: 40px; padding: 20px; background: #fff8e1;
@@ -115,6 +110,10 @@
             text-align: center; color: #999; font-size: 0.8rem; margin-top: 20px; line-height: 1.5;
             max-width: 450px;
         }
+        /* 방문자수 카운터 스타일 */
+        .visitor-counter {
+            margin-top: 15px; padding: 10px; background: #eee; border-radius: 10px; display: inline-block;
+        }
 
         .yellow { background-color: #fbc400; } .blue { background-color: #69c8f2; }
         .red { background-color: #ff7272; } .gray { background-color: #aaaaaa; } .green { background-color: #b0d840; }
@@ -122,7 +121,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js"></script>
-    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
@@ -135,7 +133,7 @@
         </div>
 
         <h1>🎰 이번 주 주인공은 나!</h1>
-        <p class="subtitle">QR 당첨 확인 & 빅데이터 분석기</p>
+        <p class="subtitle">QR 스캔 & 빅데이터 분석기</p>
         
         <div id="qr-reader-container">
             <div id="qr-reader" style="width: 100%;"></div>
@@ -160,8 +158,8 @@
 
         <button class="main-btn" onclick="generateLotto()">✨ 번호 생성하기 (5게임)</button>
         
-        <div id="action-box" class="action-group" style="display: flex;"> <button class="action-btn btn-qr" onclick="startQR()"><span>📷</span> 로또 용지 QR 당첨확인</button>
-            
+        <div id="action-box" class="action-group" style="display: flex;"> 
+            <button class="action-btn btn-qr" onclick="startQR()"><span>📷</span> 로또 용지 QR 당첨확인</button>
             <button class="action-btn btn-save" onclick="saveToHistory()"><span>💾</span> 보관함에 저장</button>
             <button class="action-btn btn-copy" onclick="copyNumbers()"><span>📋</span> 전체 복사</button>
             <button class="action-btn btn-kakao" onclick="shareKakao()"><span>💬</span> 카카오톡 공유</button>
@@ -183,8 +181,13 @@
             <strong>🚧 비영리 포트폴리오 안내</strong><br>
             본 서비스는 개발자의 코딩 연구 및 자기계발을 위해 제작된<br>
             <strong>비영리 웹사이트</strong>이며, 어떠한 수익도 창출하지 않습니다.<br>
-            (광고 X, 후원 X, 영리 활동 X)
         </p>
+        
+        <div class="visitor-counter">
+            <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">👀 총 방문자 수</div>
+            <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fmylotto123.com&count_bg=%234CAF50&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITORS&edge_flat=false" alt="방문자수">
+        </div>
+
         <p style="font-size: 0.7rem; margin-top: 10px;">
             * 생성된 번호는 무작위 결과이며 당첨을 보장하지 않습니다.<br>
             © 2024 황금손 로또. All rights reserved.
@@ -195,42 +198,24 @@
     const YOUR_KAKAO_KEY = 'af275756cd7eed0e7fc105037bc62673'; 
     const shareUrl = 'https://mylotto123.com';
     let currentNumbers = []; 
-    let html5QrCode; // QR 리더 객체
+    let html5QrCode;
 
-    // === 📷 QR 코드 관련 함수 ===
     function startQR() {
-        // HTTPS 환경 체크 (로컬호스트 제외)
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-            alert('보안 문제로 카메라를 실행할 수 없습니다.\n(반드시 https 환경에서 접속해주세요)');
-            return;
+            alert('보안 문제로 카메라를 실행할 수 없습니다.\n(https 환경 필수)'); return;
         }
-
-        const container = document.getElementById('qr-reader-container');
-        container.style.display = 'block';
-
+        document.getElementById('qr-reader-container').style.display = 'block';
         html5QrCode = new Html5Qrcode("qr-reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        
-        // 후면 카메라 사용 (environment)
         html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-        .catch(err => {
-            console.error(err);
-            alert('카메라를 시작할 수 없습니다. 권한을 허용해주세요.');
-            container.style.display = 'none';
-        });
+        .catch(err => { console.error(err); alert('카메라 권한을 허용해주세요.'); stopQR(); });
     }
 
     function onScanSuccess(decodedText, decodedResult) {
-        // QR 인식 성공 시
         if (decodedText.includes('dhlottery.co.kr') || decodedText.includes('lotto')) {
-            // 성공 알림 없이 바로 이동 (사용자 편의성)
             stopQR();
-            if(confirm('QR코드가 인식되었습니다!\n동행복권 당첨 확인 페이지로 이동할까요?')) {
-                window.location.href = decodedText;
-            }
-        } else {
-            alert('로또 복권 QR코드가 아닌 것 같습니다.\n다시 시도해주세요.');
-        }
+            if(confirm('QR코드 인식 성공!\n당첨 확인 페이지로 이동할까요?')) { window.location.href = decodedText; }
+        } else { alert('로또 용지가 아닌 것 같습니다.'); }
     }
 
     function stopQR() {
@@ -239,11 +224,8 @@
                 document.getElementById('qr-reader-container').style.display = 'none';
                 html5QrCode.clear();
             }).catch(err => console.log(err));
-        } else {
-             document.getElementById('qr-reader-container').style.display = 'none';
-        }
+        } else { document.getElementById('qr-reader-container').style.display = 'none'; }
     }
-    // ==========================
 
     const tips = [
         { title: "📊 로또 확률의 수학적 분석", content: `<p>로또 1등 확률은 814만 분의 1입니다. 모든 번호 조합은 수학적으로 동일한 확률을 가집니다.</p>` },
@@ -343,7 +325,6 @@
                     container.appendChild(row);
                     if (i === 4) {
                         fireConfetti();
-                        // Action Box는 이제 항상 표시되므로 별도 처리 불필요
                     }
                 }, i * 150);
             }
@@ -386,7 +367,6 @@
     function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
 
-    // ✅ 페이지 로드 시 실행 (팁 출력 포함)
     window.onload = function() {
         try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
         fetchLottoNumbers(); 
