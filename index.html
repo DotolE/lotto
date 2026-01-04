@@ -251,8 +251,8 @@
             });
         }
 
-       function shareKakao() {
-            // 👇 이동할 사이트 주소 (정확히 입력됨)
+function shareKakao() {
+            // 👇 이동할 주소 (본인의 깃허브 주소)
             const myUrl = 'https://dotole.github.io/lotto';
 
             if (!Kakao.isInitialized()) {
@@ -266,8 +266,8 @@
                     title: '🎰 황금손 로또 번호 생성기',
                     description: '이번 주 1등 주인공은 바로 나! 행운의 번호를 확인해보세요.',
                     imageUrl: 'https://cdn-icons-png.flaticon.com/512/1055/1055646.png',
+                    // 👇 [중요] 여기가 있어야 이미지나 제목을 눌렀을 때 이동합니다!
                     link: {
-                        // [1] 이미지나 제목을 눌렀을 때 이동할 주소
                         mobileWebUrl: myUrl,
                         webUrl: myUrl,
                     },
@@ -276,7 +276,7 @@
                     {
                         title: '번호 확인하러 가기',
                         link: {
-                            // [2] 노란 버튼을 눌렀을 때 이동할 주소
+                            // 👇 여기는 하단 버튼을 눌렀을 때 이동하는 곳입니다
                             mobileWebUrl: myUrl,
                             webUrl: myUrl,
                         },
@@ -284,7 +284,6 @@
                 ],
             });
         }
-
         // 공 색상 함수
         function getColorClass(num) {
             if (num <= 10) return 'yellow';
@@ -297,5 +296,6 @@
 </body>
 
 </html>
+
 
 
