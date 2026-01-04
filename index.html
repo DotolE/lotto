@@ -3,15 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>황금손 로또 생성기 - 고급 설정 추가</title>
+    <title>황금손 로또 - 오류 검증 강화판</title>
     
-    <meta name="description" content="고정수와 제외수 설정이 가능한 무료 로또 번호 생성기. 빅데이터 기반 5게임 자동 생성 및 저장 기능 제공.">
-    <meta name="keywords" content="로또번호생성기, 로또고정수, 로또제외수, 로또예상번호, 무료로또">
-    <meta name="author" content="황금손">
-    <meta property="og:title" content="💰 황금손 로또 - 내 맘대로 고정/제외 설정!">
-    <meta property="og:description" content="원하는 번호는 넣고, 싫은 번호는 빼고 돌려보세요.">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
-
+    <meta name="description" content="엄격한 오류 검증 기능이 추가된 로또 번호 생성기. 고정수, 제외수 충돌 방지 및 5게임 자동 생성.">
+    
     <style>
         @font-face {
             font-family: 'GmarketSansMedium';
@@ -36,7 +31,6 @@
         h1 { color: #2c3e50; margin: 10px 0; font-size: 1.8rem; word-break: keep-all; }
         .subtitle { color: #7f8c8d; font-size: 0.95rem; margin-bottom: 20px; }
 
-        /* 결과 박스 */
         #result-container { min-height: 120px; margin: 20px 0; }
         .numbers-container {
             display: flex; justify-content: center; align-items: center;
@@ -52,33 +46,29 @@
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2), 2px 5px 5px rgba(0,0,0,0.15);
         }
 
-        /* ⚙️ 옵션 토글 버튼 */
+        /* 옵션 패널 */
         .option-toggle-btn {
-            background: #f1f3f5; border: none; padding: 10px 20px; border-radius: 20px;
-            color: #555; font-weight: bold; cursor: pointer; margin-bottom: 15px;
-            display: inline-flex; align-items: center; gap: 5px; transition: 0.2s;
+            background: #e3f2fd; border: 1px solid #2196F3; color: #1976D2;
+            padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer;
+            margin-bottom: 15px; display: inline-flex; align-items: center; gap: 5px;
         }
-        .option-toggle-btn:hover { background: #e9ecef; }
-
-        /* ⚙️ 옵션 패널 (숨김 상태) */
         #option-panel {
             display: none; background: #f8f9fa; padding: 15px; border-radius: 15px;
-            margin-bottom: 20px; border: 1px solid #eee; text-align: left;
+            margin-bottom: 20px; border: 1px solid #ddd; text-align: left;
         }
-        .input-group { margin-bottom: 10px; }
-        .input-group label { display: block; font-size: 14px; margin-bottom: 5px; color: #555; font-weight: bold; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 14px; margin-bottom: 5px; color: #333; font-weight: bold; }
         .input-field {
-            width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px;
-            box-sizing: border-box; font-family: inherit; font-size: 14px;
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px;
+            box-sizing: border-box; font-size: 15px;
         }
-        .input-field:focus { outline: none; border-color: #4CAF50; }
+        .input-field:focus { outline: none; border-color: #2196F3; background: #fff; }
 
-        /* 메인 버튼 */
         .main-btn {
             width: 100%; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
             color: white; border: none; padding: 18px 0; font-size: 18px; font-weight: bold;
             border-radius: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-            transition: transform 0.1s; margin-bottom: 15px;
+            margin-bottom: 15px;
         }
         .main-btn:active { transform: scale(0.97); }
 
@@ -92,23 +82,17 @@
         .btn-copy { background-color: #34495e; color: white; }
         .btn-kakao { background-color: #FEE500; color: #3c1e1e; }
 
-        /* 보관함 */
         .history-box {
             margin-top: 40px; padding: 20px; background: #fff8e1;
             border-radius: 15px; border: 2px dashed #ffca28; text-align: left;
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .history-list { font-size: 0.9rem; max-height: 200px; overflow-y: auto; }
         
         .content-box { text-align: left; margin-top: 50px; padding-top: 20px; border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; }
         .content-box h3 { color: #FF5722; margin-top: 30px; border-left: 4px solid #FF5722; padding-left: 10px; }
 
-        /* 공 색상 */
-        .yellow { background-color: #fbc400; }
-        .blue { background-color: #69c8f2; }
-        .red { background-color: #ff7272; }
-        .gray { background-color: #aaaaaa; }
-        .green { background-color: #b0d840; }
+        .yellow { background-color: #fbc400; } .blue { background-color: #69c8f2; }
+        .red { background-color: #ff7272; } .gray { background-color: #aaaaaa; } .green { background-color: #b0d840; }
     </style>
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -121,24 +105,26 @@
             <h3 style="margin: 0 0 5px 0; font-size: 1.1rem;">🏆 <span id="drwNo">0000</span>회 당첨결과</h3>
             <p style="font-size: 0.8em; color: #888; margin: 0 0 10px 0;" id="drwDate">-</p>
             <div id="win-numbers" style="display: flex; justify-content: center; gap: 4px; flex-wrap: wrap;"></div>
-            <div style="margin-top: 5px; font-size: 0.8em;">보너스: <span id="bonusNo" style="font-weight: bold; color: #ff7272;">-</span></div>
         </div>
 
         <h1>🎰 이번 주 주인공은 나!</h1>
-        <p class="subtitle">고정수/제외수 설정으로 당첨 확률 UP</p>
+        <p class="subtitle">엄격한 검증 시스템 가동 중</p>
         
-        <button class="option-toggle-btn" onclick="toggleOptions()">⚙️ 고급 설정 열기/닫기</button>
+        <button class="option-toggle-btn" onclick="toggleOptions()">⚙️ 고정수/제외수 설정</button>
         
         <div id="option-panel">
             <div class="input-group">
                 <label>📌 고정수 (무조건 포함 / 최대 5개)</label>
-                <input type="text" id="fixed-nums" class="input-field" placeholder="쉼표로 구분 (예: 1, 7, 45)">
+                <input type="text" id="fixed-nums" class="input-field" placeholder="예: 1, 7, 45 (쉼표로 구분)">
             </div>
             <div class="input-group">
                 <label>🚫 제외수 (절대 안 나옴)</label>
-                <input type="text" id="exclude-nums" class="input-field" placeholder="쉼표로 구분 (예: 4, 13)">
+                <input type="text" id="exclude-nums" class="input-field" placeholder="예: 4, 13 (쉼표로 구분)">
             </div>
-            <p style="font-size:12px; color:#999; margin:0;">* 숫자 사이를 쉼표(,)로 구분해주세요.</p>
+            <div style="font-size:13px; color:#d32f2f; background:#ffebee; padding:10px; border-radius:5px;">
+                ⚠️ 1~45 사이 숫자만 입력 가능합니다.<br>
+                ⚠️ 고정수와 제외수는 겹칠 수 없습니다.
+            </div>
         </div>
 
         <div id="result-container">
@@ -148,26 +134,22 @@
         <button class="main-btn" onclick="generateLotto()">✨ 번호 생성하기 (5게임)</button>
         
         <div id="action-box" class="action-group">
-            <button class="action-btn btn-save" onclick="saveToHistory()"><span>💾</span> 이 번호 저장</button>
+            <button class="action-btn btn-save" onclick="saveToHistory()"><span>💾</span> 보관함에 저장</button>
             <button class="action-btn btn-copy" onclick="copyNumbers()"><span>📋</span> 전체 복사</button>
             <button class="action-btn btn-kakao" onclick="shareKakao()"><span>💬</span> 카카오톡 공유</button>
         </div>
 
         <div class="history-box">
-            <div class="history-header">
-                <strong style="color: #f57f17;">📂 나의 저장된 번호</strong>
-                <button onclick="clearHistory()" style="background:none; border:none; color:#999; text-decoration:underline; cursor:pointer; font-size:12px;">전체삭제</button>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong>📂 보관함</strong>
+                <span onclick="clearHistory()" style="cursor:pointer; font-size:12px; color:#999;">비우기</span>
             </div>
-            <div id="history-list" class="history-list">
-                <div style="color:#ccc; text-align:center; padding:20px;">저장된 기록이 없습니다.</div>
-            </div>
+            <div id="history-list" class="history-list"><div style="color:#ccc;">기록 없음</div></div>
         </div>
-
+        
         <div class="content-box">
-            <h3>📊 확률을 높이는 고정수 전략</h3>
-            <p>자신만의 '행운의 숫자'가 있다면 고정수 기능을 활용해보세요. 최근 자주 나오지 않은 번호(콜드 넘버)를 제외수로 설정하여 확률을 높이는 전략도 많은 분석가들이 사용하는 방법입니다.</p>
-            <h3>🌙 꿈 해몽과 로또</h3>
-            <p>좋은 꿈을 꾸셨나요? 꿈에서 본 숫자나 사물과 연관된 번호를 고정수로 설정하고 돌려보세요. 무작위성과 직관의 조화가 행운을 부를 수 있습니다.</p>
+            <h3>📊 확률을 높이는 전략</h3>
+            <p>자주 나오는 번호나 개인적인 행운의 숫자를 고정수로 설정하세요. 반대로 최근 너무 자주 나와서 안 나올 것 같은 번호는 제외수로 빼버리세요.</p>
         </div>
     </div>
 
@@ -176,176 +158,187 @@
     const shareUrl = 'https://mylotto123.com';
     let currentNumbers = []; 
 
-    // 옵션 토글 함수
     function toggleOptions() {
         const panel = document.getElementById('option-panel');
-        if (panel.style.display === 'block') {
-            panel.style.display = 'none';
-        } else {
-            panel.style.display = 'block';
+        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+    }
+
+    // 🔥 [핵심] 엄격한 숫자 파싱 함수 (오류 시 바로 멈춤)
+    function parseAndValidate(inputStr, fieldName) {
+        if (!inputStr.trim()) return [];
+        
+        // 1. 콤마가 아닌 띄어쓰기만 쓴 경우 체크 (사용자 실수 방지)
+        if (inputStr.includes(' ') && !inputStr.includes(',')) {
+            // 숫자 사이에 공백은 있는데 콤마가 하나도 없다면?
+            const tempCheck = inputStr.split(' ').filter(s => s.trim() !== '');
+            if (tempCheck.length > 1) {
+                alert(`⚠️ [${fieldName}] 오류:\n숫자 사이에는 반드시 쉼표(,)를 찍어주세요!`);
+                throw new Error("Comma Missing");
+            }
         }
+
+        const parts = inputStr.split(',');
+        const result = [];
+
+        for (let p of parts) {
+            let strVal = p.trim();
+            if (strVal === '') continue; // 빈 콤마는 무시
+
+            // 2. 숫자가 아닌 문자 체크
+            if (isNaN(strVal)) {
+                alert(`⚠️ [${fieldName}] 오류:\n"${strVal}"은(는) 숫자가 아닙니다.`);
+                throw new Error("NaN Error");
+            }
+
+            let num = parseInt(strVal);
+
+            // 3. 범위 체크
+            if (num < 1 || num > 45) {
+                alert(`⚠️ [${fieldName}] 오류:\n로또 번호는 1부터 45까지만 가능합니다.\n입력된 값: ${num}`);
+                throw new Error("Range Error");
+            }
+
+            // 4. 중복 체크 (같은 칸 안에서)
+            if (result.includes(num)) {
+                alert(`⚠️ [${fieldName}] 오류:\n숫자 ${num}번을 중복해서 입력하셨습니다.`);
+                throw new Error("Duplicate Error");
+            }
+
+            result.push(num);
+        }
+        return result;
     }
 
-    // 입력값 파싱 도우미 (쉼표 분리 및 숫자 변환)
-    function parseInputNumbers(str) {
-        if (!str) return [];
-        const nums = str.split(',')
-            .map(n => parseInt(n.trim()))
-            .filter(n => !isNaN(n) && n >= 1 && n <= 45); // 1~45 숫자만
-        return [...new Set(nums)]; // 중복 제거
-    }
-
-    // 1. 번호 생성 (핵심 로직)
+    // 번호 생성 실행
     function generateLotto() {
-        // 입력값 가져오기
         const fixedInput = document.getElementById('fixed-nums').value;
         const excludeInput = document.getElementById('exclude-nums').value;
 
-        const fixedList = parseInputNumbers(fixedInput);
-        const excludeList = parseInputNumbers(excludeInput);
+        try {
+            // 🚨 여기서 엄격하게 검사 (에러나면 catch로 이동하여 중단됨)
+            const fixedList = parseAndValidate(fixedInput, "고정수");
+            const excludeList = parseAndValidate(excludeInput, "제외수");
 
-        // 검증 (Validation)
-        if (fixedList.length > 5) return alert("고정수는 최대 5개까지만 가능합니다!");
-        if (fixedList.length + excludeList.length > 39) return alert("제외수와 고정수가 너무 많아 번호를 만들 수 없습니다.");
-        
-        // 교집합 확인 (고정수이면서 동시에 제외수일 수 없음)
-        const intersection = fixedList.filter(x => excludeList.includes(x));
-        if (intersection.length > 0) return alert(`오류: ${intersection.join(', ')}번은 고정수이면서 제외수일 수 없습니다.`);
-
-        const container = document.getElementById('result-container');
-        container.innerHTML = ''; 
-        currentNumbers = []; 
-
-        // 5게임 생성 반복
-        for (let i = 0; i < 5; i++) {
-            // 고정수를 미리 넣고 시작
-            let numbers = [...fixedList];
-            
-            while (numbers.length < 6) {
-                const num = Math.floor(Math.random() * 45) + 1;
-                // 이미 뽑은 번호 X, 제외수 X
-                if (!numbers.includes(num) && !excludeList.includes(num)) {
-                    numbers.push(num);
-                }
+            // 5. 고정수 개수 제한
+            if (fixedList.length > 5) {
+                alert("⚠️ 고정수는 최대 5개까지만 설정 가능합니다.\n(나머지는 운에 맡기세요!)");
+                return;
             }
-            numbers.sort((a, b) => a - b);
-            
-            currentNumbers.push(numbers);
 
-            // 화면 그리기
-            const row = document.createElement('div');
-            row.className = 'numbers-container';
-            
-            const label = document.createElement('span');
-            label.innerText = String.fromCharCode(65 + i); 
-            label.style.fontWeight = 'bold'; label.style.marginRight = '8px'; label.style.width = '20px'; label.style.color = '#555';
-            row.appendChild(label);
+            // 6. 고정수와 제외수 충돌 체크 (교집합)
+            const conflict = fixedList.filter(x => excludeList.includes(x));
+            if (conflict.length > 0) {
+                alert(`⚠️ 충돌 발생!\n\n${conflict.join(', ')}번은\n'고정수'이면서 동시에 '제외수'일 수 없습니다.\n\n한쪽에서 지워주세요.`);
+                return;
+            }
 
-            numbers.forEach(num => {
-                const ball = document.createElement('div');
-                // 고정수는 테두리로 표시해줄 수도 있음 (여기선 심플하게 색상만)
-                ball.className = `ball ${getColorClass(num)}`;
-                ball.textContent = num;
+            // 7. 남은 숫자 개수 체크
+            if (fixedList.length + excludeList.length > 39) {
+                alert("⚠️ 제외시킨 숫자가 너무 많아서\n번호를 6개 채울 수가 없습니다.");
+                return;
+            }
+
+            // --- 검사 통과! 생성 시작 ---
+            const container = document.getElementById('result-container');
+            container.innerHTML = ''; 
+            currentNumbers = []; 
+
+            for (let i = 0; i < 5; i++) {
+                let numbers = [...fixedList]; // 고정수 먼저 넣기
                 
-                // 고정수라면 약간의 스타일 추가 (선택)
-                if(fixedList.includes(num)) {
-                    ball.style.border = "2px solid #333";
-                    ball.title = "고정수";
+                // 랜덤 채우기
+                while (numbers.length < 6) {
+                    const num = Math.floor(Math.random() * 45) + 1;
+                    // 중복 아니고, 제외수 아니면 추가
+                    if (!numbers.includes(num) && !excludeList.includes(num)) {
+                        numbers.push(num);
+                    }
                 }
-                
-                row.appendChild(ball);
-            });
+                numbers.sort((a, b) => a - b);
+                currentNumbers.push(numbers);
 
-            setTimeout(() => {
-                container.appendChild(row);
-                if (i === 4) {
-                    fireConfetti();
-                    const actionBox = document.getElementById('action-box');
-                    if(actionBox) actionBox.style.display = 'flex';
-                }
-            }, i * 150); 
+                // 화면 그리기
+                const row = document.createElement('div');
+                row.className = 'numbers-container';
+                const label = document.createElement('span');
+                label.innerText = String.fromCharCode(65 + i); 
+                label.style.fontWeight = 'bold'; label.style.marginRight = '8px'; label.style.width = '20px'; label.style.color = '#555';
+                row.appendChild(label);
+
+                numbers.forEach(num => {
+                    const ball = document.createElement('div');
+                    ball.className = `ball ${getColorClass(num)}`;
+                    ball.textContent = num;
+                    if(fixedList.includes(num)) {
+                        ball.style.border = "2px solid #333"; // 고정수는 테두리 표시
+                        ball.style.transform = "scale(1.1)"; // 약간 강조
+                    }
+                    row.appendChild(ball);
+                });
+
+                setTimeout(() => {
+                    container.appendChild(row);
+                    if (i === 4) {
+                        fireConfetti();
+                        document.getElementById('action-box').style.display = 'flex';
+                    }
+                }, i * 150);
+            }
+
+        } catch (e) {
+            // 검증 과정에서 에러가 나면 여기서 멈춤 (아무것도 안 함)
+            console.error(e);
         }
     }
 
-    // 2. 보관함 저장
+    // 기타 기능들 (저장, 공유, 로딩 등)
     function saveToHistory() {
         if(currentNumbers.length === 0) return alert("먼저 번호를 생성해주세요!");
         let history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
-        const date = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString();
-        history.unshift({ date: date, nums: currentNumbers });
+        history.unshift({ date: new Date().toLocaleString(), nums: currentNumbers });
         localStorage.setItem('lottoHistory', JSON.stringify(history));
-        alert("보관함에 저장되었습니다!");
+        alert("저장 완료!");
         renderHistory();
     }
 
-    // 3. 보관함 보기
     function renderHistory() {
         const list = document.getElementById('history-list');
         const history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
-        if(history.length === 0) {
-            list.innerHTML = '<div style="color:#ccc; text-align:center; padding:20px;">저장된 기록이 없습니다.</div>';
-            return;
-        }
+        if(history.length === 0) { list.innerHTML = '<div style="color:#ccc; text-align:center;">기록 없음</div>'; return; }
         list.innerHTML = '';
         history.forEach((item) => {
             const div = document.createElement('div');
-            div.style.borderBottom = "1px solid #ddd"; div.style.padding = "10px 0";
+            div.style.borderBottom = "1px solid #eee"; div.style.padding = "10px 0";
             let numText = "";
             item.nums.forEach((set, i) => {
-                const label = String.fromCharCode(65 + i);
-                numText += `<div><b>${label}</b> : ${set.join(', ')}</div>`;
+                numText += `<div><b>${String.fromCharCode(65 + i)}</b>: ${set.join(', ')}</div>`;
             });
-            div.innerHTML = `<div style="font-size:12px; color:#888; margin-bottom:5px;">📅 ${item.date}</div><div style="font-family:monospace; color:#333; line-height:1.4;">${numText}</div>`;
+            div.innerHTML = `<div style="font-size:11px; color:#aaa;">${item.date}</div><div style="font-family:monospace; margin-top:5px;">${numText}</div>`;
             list.appendChild(div);
         });
     }
-
+    
     function clearHistory() {
-        if(confirm("기록을 모두 삭제하시겠습니까?")) {
+        if(confirm("모든 기록을 지울까요?")) {
             localStorage.removeItem('lottoHistory');
             renderHistory();
         }
     }
 
-    function fireConfetti() {
-        if(typeof confetti === 'undefined') return; 
-        var count = 200; var defaults = { origin: { y: 0.7 } };
-        function fire(particleRatio, opts) { confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * particleRatio) })); }
-        fire(0.25, { spread: 26, startVelocity: 55 }); fire(0.2, { spread: 60 });
-        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 }); fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-        fire(0.1, { spread: 120, startVelocity: 45 });
-    }
-
+    function fireConfetti() { if(typeof confetti !== 'undefined') confetti({ origin: { y: 0.7 } }); }
     function copyNumbers() {
-        const rows = document.querySelectorAll('#result-container .numbers-container');
-        if(rows.length === 0) return;
-        let text = '🍀 황금손 로또 5게임 🍀\n\n';
-        rows.forEach((row, index) => {
-            const balls = row.querySelectorAll('.ball');
-            const label = String.fromCharCode(65 + index); 
-            text += `${label} : `;
-            balls.forEach(ball => { text += ball.textContent + ' '; });
-            text += '\n';
-        });
-        text += '\n👉 행운 확인: ' + shareUrl;
-        if(navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => alert('복사 완료!')).catch(() => alert('복사 실패'));
-        } else { alert('지원하지 않는 브라우저입니다.'); }
+        const rows = document.querySelectorAll('.numbers-container');
+        if(rows.length===0) return;
+        let t = '🍀 로또 5게임 🍀\n';
+        rows.forEach((r, i) => { t += String.fromCharCode(65+i) + ': ' + r.innerText.replace(String.fromCharCode(65+i), '').trim().replace(/\n/g, ' ') + '\n'; });
+        navigator.clipboard.writeText(t).then(()=>alert('복사되었습니다!')).catch(()=>alert('실패'));
     }
-
-    function shareKakao() {
-        if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) { alert('카카오톡 준비중'); return; }
-        Kakao.Share.sendScrap({ requestUrl: shareUrl });
-    }
-
-    function getColorClass(num) {
-        if (num <= 10) return 'yellow'; else if (num <= 20) return 'blue'; else if (num <= 30) return 'red'; else if (num <= 40) return 'gray'; else return 'green';
-    }
+    function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
+    function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
 
     window.onload = function() {
-        try { if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch (e) {}
-        fetchLottoNumbers();
-        renderHistory();
+        try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
+        fetchLottoNumbers(); renderHistory();
     };
 
     async function fetchLottoNumbers() {
@@ -353,34 +346,24 @@
         const startDate = new Date('2002-12-07');
         const now = new Date();
         const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
-        const timeDiff = now - startDate;
-        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        const daysDiff = (now - startDate) / (1000 * 3600 * 24);
         let round = Math.floor(daysDiff / 7) + 1;
         if (!isSatAfter9PM && now.getDay() === 6) round -= 1; 
 
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000);
-            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!response.ok) throw new Error("Network Error");
-            const textData = await response.text();
-            if (textData.trim().startsWith('<')) throw new Error("Blocked");
-            const data = JSON.parse(textData);
+            const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`);
+            const data = JSON.parse(await res.text());
             if (data.returnValue === 'success' && resultBox) {
                 resultBox.style.display = 'block';
                 document.getElementById('drwNo').innerText = data.drwNo;
-                document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
-                document.getElementById('bonusNo').innerText = data.bnusNo;
-                const winContainer = document.getElementById('win-numbers');
-                winContainer.innerHTML = ''; 
-                [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6].forEach(num => {
-                    const ball = document.createElement('div'); ball.className = `ball ${getColorClass(num)}`;
-                    ball.textContent = num; ball.style.width = '28px'; ball.style.height = '28px'; ball.style.fontSize = '13px';
-                    winContainer.appendChild(ball);
+                document.getElementById('drwDate').innerText = `(${data.drwNoDate})`;
+                const winDiv = document.getElementById('win-numbers'); winDiv.innerHTML = '';
+                [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6].forEach(n => {
+                    const b = document.createElement('div'); b.className = `ball ${getColorClass(n)}`; b.innerText = n;
+                    b.style.width='28px'; b.style.height='28px'; b.style.fontSize='13px'; winDiv.appendChild(b);
                 });
             }
-        } catch (error) { if(resultBox) resultBox.style.display = 'none'; }
+        } catch(e) { if(resultBox) resultBox.style.display = 'none'; }
     }
 </script>
 </body>
