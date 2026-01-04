@@ -209,92 +209,11 @@
     // 👇 [2] 공유 시 이동할 주소
     const shareUrl = 'https://mylotto123.com';
 
-    window.onload = function() {
-        fetchLottoNumbers();
-        try {
-            if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
-                Kakao.init(YOUR_KAKAO_KEY);
-            }
-        } catch (e) { console.error("카카오 초기화 실패(무시 가능):", e); }
-    };
+    // ==========================================
+    // ✅ 1. 핵심 기능 함수들 (여기에 두어야 버튼이 절대 고장나지 않음)
+    // ==========================================
 
-    // ✅ [수정됨] 제3의 우회 서버(CodeTabs) 적용
-    async function fetchLottoNumbers() {
-        const startDate = new Date('2002-12-07');
-        const now = new Date();
-        const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
-        
-        const timeDiff = now - startDate;
-        const daysDiff = timeDiff / (1000 * 3600 * 24);
-        let round = Math.floor(daysDiff / 7) + 1;
-        
-        if (!isSatAfter9PM && now.getDay() === 6) round -= 1; 
-
-        const lottoUrl = 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round;
-        
-        // 💡 전략: CodeTabs 서버(1순위) -> AllOrigins 서버(2순위)
-        try {
-            // [1차 시도] CodeTabs 사용
-            console.log("1차 서버(CodeTabs) 시도 중...");
-            const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(lottoUrl)}`);
-            
-            if (!response.ok) throw new Error("1차 서버 응답 없음");
-            
-            const data = await response.json(); // CodeTabs는 바로 JSON을 줍니다.
-            
-            if (data.returnValue === 'success') {
-                displayWinNumbers(data);
-                return; // 성공! 종료
-            } else {
-                throw new Error("데이터 오류");
-            }
-
-        } catch (error1) {
-            console.log("1차 실패, 2차 서버(AllOrigins) 시도...", error1);
-            
-            // [2차 시도] 기존 AllOrigins 재시도
-            try {
-                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(lottoUrl)}`);
-                if (!response.ok) throw new Error("2차 서버 응답 없음");
-                
-                const data = await response.json();
-                const lottoData = JSON.parse(data.contents); 
-
-                if (lottoData.returnValue === 'success') {
-                    displayWinNumbers(lottoData);
-                }
-            } catch (error2) {
-                console.log('모든 서버 연결 실패. 잠시 후 다시 시도해주세요.');
-                const resultBox = document.getElementById('latest-win-box');
-                if(resultBox) resultBox.style.display = 'none';
-            }
-        }
-    }
-
-    function displayWinNumbers(data) {
-        const resultBox = document.getElementById('latest-win-box');
-        if (resultBox) {
-            resultBox.style.display = 'block';
-            document.getElementById('drwNo').innerText = data.drwNo;
-            document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
-            document.getElementById('bonusNo').innerText = data.bnusNo;
-
-            const winContainer = document.getElementById('win-numbers');
-            winContainer.innerHTML = ''; 
-            const numbers = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
-            numbers.forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = `ball ${getColorClass(num)}`;
-                ball.textContent = num;
-                ball.style.width = '35px';
-                ball.style.height = '35px';
-                ball.style.fontSize = '16px';
-                ball.style.margin = '3px';
-                winContainer.appendChild(ball);
-            });
-        }
-    }
-
+    // 번호 생성 함수
     function generateLotto() {
         const numbers = [];
         while (numbers.length < 6) {
@@ -302,14 +221,17 @@
             if (!numbers.includes(num)) { numbers.push(num); }
         }
         numbers.sort((a, b) => a - b);
+
         const resultDiv = document.getElementById('result');
         resultDiv.innerHTML = ''; 
+
         numbers.forEach((num, index) => {
             setTimeout(() => {
                 const ball = document.createElement('div');
                 ball.className = `ball ${getColorClass(num)}`;
                 ball.textContent = num;
                 resultDiv.appendChild(ball);
+
                 if (index === 5) {
                     fireConfetti();
                     const copyBox = document.getElementById('copy-box');
@@ -319,11 +241,15 @@
         });
     }
 
+    // 폭죽 효과
     function fireConfetti() {
-        if(typeof confetti === 'undefined') return;
-        var count = 200; var defaults = { origin: { y: 0.7 } };
+        if(typeof confetti === 'undefined') return; 
+        var count = 200;
+        var defaults = { origin: { y: 0.7 } };
         function fire(particleRatio, opts) {
-            confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * particleRatio) }));
+            confetti(Object.assign({}, defaults, opts, {
+                particleCount: Math.floor(count * particleRatio)
+            }));
         }
         fire(0.25, { spread: 26, startVelocity: 55 });
         fire(0.2, { spread: 60 });
@@ -332,24 +258,35 @@
         fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
+    // 복사 기능
     function copyNumbers() {
         const balls = document.querySelectorAll('#result .ball');
         if(balls.length === 0) return;
+        
         let text = '🍀 황금손 로또 추천번호 🍀\n';
         balls.forEach(ball => { text += ball.textContent + ' '; });
+        
         if(navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => alert('번호가 복사되었습니다!'))
-            .catch(() => alert('복사 실패!'));
-        } else { alert('지원하지 않는 브라우저입니다.'); }
+            navigator.clipboard.writeText(text).then(() => {
+                alert('번호가 복사되었습니다!');
+            }).catch(() => {
+                alert('복사 실패! 화면을 캡처해주세요.');
+            });
+        } else {
+             alert('이 브라우저는 복사 기능을 지원하지 않습니다.');
+        }
     }
 
+    // 카카오 공유 기능
     function shareKakao() {
         if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) {
-            alert('카카오톡 기능 준비 안됨'); return;
+            alert('카카오톡 기능이 준비되지 않았습니다.');
+            return;
         }
         Kakao.Share.sendScrap({ requestUrl: shareUrl });
     }
 
+    // 공 색상 결정
     function getColorClass(num) {
         if (num <= 10) return 'yellow';
         else if (num <= 20) return 'blue';
@@ -357,10 +294,93 @@
         else if (num <= 40) return 'gray';
         else return 'green';
     }
+
+    // ==========================================
+    // ✅ 2. 페이지 로드 시 실행 (데이터 불러오기 등)
+    // ==========================================
+    window.onload = function() {
+        // 카카오톡 초기화
+        try {
+            if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                Kakao.init(YOUR_KAKAO_KEY);
+            }
+        } catch (e) { console.error("카카오 초기화 실패(무시 가능):", e); }
+
+        // 로또 데이터 불러오기 시작
+        fetchLottoNumbers();
+    };
+
+    // 로또 당첨 정보 불러오기 (안전 모드)
+    async function fetchLottoNumbers() {
+        const resultBox = document.getElementById('latest-win-box');
+        
+        // 1. 회차 계산 (수학 공식이므로 서버 상관없이 무조건 됨)
+        const startDate = new Date('2002-12-07');
+        const now = new Date();
+        const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
+        const timeDiff = now - startDate;
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        let round = Math.floor(daysDiff / 7) + 1;
+        if (!isSatAfter9PM && now.getDay() === 6) { round -= 1; }
+
+        // 2. 데이터 가져오기 시도
+        // (주의: 무료 서버들이 현재 불안정하므로 실패 시 박스를 숨김 처리)
+        const lottoUrl = 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round;
+        
+        try {
+            // 가장 성공률 높은 corsproxy.io 시도
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(lottoUrl)}`);
+            
+            // 응답이 HTML(<)이거나 에러면 멈춤
+            if (!response.ok) throw new Error("Network Error");
+            
+            const textData = await response.text();
+            // 내용물이 JSON인지 확인 (여기가 핵심!)
+            if (textData.trim().startsWith('<')) {
+                throw new Error("서버가 차단됨 (HTML 반환)");
+            }
+
+            const data = JSON.parse(textData);
+
+            if (data.returnValue === 'success') {
+                // 성공하면 화면에 표시
+                if (resultBox) {
+                    resultBox.style.display = 'block';
+                    document.getElementById('drwNo').innerText = data.drwNo;
+                    document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
+                    document.getElementById('bonusNo').innerText = data.bnusNo;
+
+                    const winContainer = document.getElementById('win-numbers');
+                    winContainer.innerHTML = ''; 
+                    const numbers = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
+                    
+                    numbers.forEach(num => {
+                        const ball = document.createElement('div');
+                        ball.className = `ball ${getColorClass(num)}`;
+                        ball.textContent = num;
+                        ball.style.width = '35px';
+                        ball.style.height = '35px';
+                        ball.style.fontSize = '16px';
+                        ball.style.margin = '3px';
+                        winContainer.appendChild(ball);
+                    });
+                }
+            } else {
+                // 데이터는 왔는데 내용이 이상하면 숨김
+                if(resultBox) resultBox.style.display = 'none';
+            }
+
+        } catch (error) {
+            // ⚠️ 실패 시 처리: 사용자에게 에러를 보여주지 않고 그냥 박스를 숨김
+            console.warn('당첨 번호 로딩 실패 (무료 서버 불안정):', error);
+            if(resultBox) resultBox.style.display = 'none';
+        }
+    }
 </script>
 </body>
 
 </html>
+
 
 
 
