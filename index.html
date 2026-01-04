@@ -3,158 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>황금손 로또 생성기 - 빅데이터 기반 무료 추천</title>
+    <title>황금손 로또 생성기 - 보관함 기능 추가</title>
     
-    <meta name="description" content="빅데이터 알고리즘을 활용한 무료 로또 번호 생성기. 이번 주 당첨 예상 번호 5게임을 한 번에 확인하세요. 로또 1등 당첨 확률 분석 및 꿈 해몽 정보 제공.">
-    <meta name="keywords" content="로또번호생성기, 로또예상번호, 무료로또, 로또당첨번호, 로또명당, 로또알고리즘">
+    <meta name="description" content="빅데이터 알고리즘 무료 로또 번호 생성기. 5게임 자동 생성 및 저장 기능 제공. 이번 주 당첨 예상 번호를 영구 보관하세요.">
+    <meta name="keywords" content="로또번호생성기, 로또저장, 로또예상번호, 무료로또, 로또명당">
     <meta name="author" content="황금손">
-    <meta property="og:title" content="💰 황금손 로또 생성기">
-    <meta property="og:description" content="오늘 당신의 행운을 확인하세요! 1등 기원 무료 번호 추출.">
+    <meta property="og:title" content="💰 황금손 로또 - 번호 저장까지 무료!">
+    <meta property="og:description" content="생성한 번호를 저장하고 언제든 다시 확인하세요.">
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
 
     <style>
-        /* 폰트: 가독성 좋은 G마켓 산스 */
         @font-face {
             font-family: 'GmarketSansMedium';
             src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
+            font-weight: normal; font-style: normal;
         }
 
         body {
             font-family: 'GmarketSansMedium', sans-serif;
             background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
             color: #333;
         }
 
         .container {
-            background-color: white;
-            padding: 2rem 1.5rem;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 450px; /* 폭을 살짝 넓힘 */
+            background-color: white; padding: 2rem 1.5rem;
+            border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center; width: 100%; max-width: 450px;
         }
 
-        h1 {
-            color: #2c3e50;
-            margin: 10px 0;
-            font-size: 1.8rem;
-            word-break: keep-all;
-        }
+        h1 { color: #2c3e50; margin: 10px 0; font-size: 1.8rem; word-break: keep-all; }
+        .subtitle { color: #7f8c8d; font-size: 0.95rem; margin-bottom: 20px; }
 
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
-
-        /* 결과 박스 스타일 */
-        #result-container {
-            min-height: 120px;
-            margin: 20px 0;
-        }
-
+        /* 결과 박스 */
+        #result-container { min-height: 120px; margin: 20px 0; }
         .numbers-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            margin: 12px 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #f0f0f0;
-            animation: fadeIn 0.5s ease-out;
+            display: flex; justify-content: center; align-items: center;
+            gap: 6px; margin: 12px 0; padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0; animation: fadeIn 0.5s ease-out;
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .ball {
-            width: 32px; height: 32px;
-            border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center;
             font-weight: bold; color: white; font-size: 14px;
             box-shadow: inset -2px -2px 5px rgba(0,0,0,0.2), 2px 5px 5px rgba(0,0,0,0.15);
         }
 
-        /* 메인 생성 버튼 */
+        /* 버튼 스타일 */
         .main-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
-            border: none;
-            padding: 18px 0;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 15px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
-            transition: transform 0.1s;
+            width: 100%; background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white; border: none; padding: 18px 0; font-size: 18px; font-weight: bold;
+            border-radius: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+            transition: transform 0.1s; margin-bottom: 15px;
         }
         .main-btn:active { transform: scale(0.97); }
 
-        /* ✨ 예쁜 액션 버튼 그룹 (복사/공유) */
-        .action-group {
-            display: none; /* 처음엔 숨김 */
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
+        .action-group { display: none; flex-direction: column; gap: 10px; margin-top: 10px; }
         .action-btn {
-            width: 100%;
-            padding: 15px 0;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            transition: filter 0.2s;
+            width: 100%; padding: 15px 0; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
         }
-        .action-btn:hover { filter: brightness(0.95); }
+        
+        .btn-save { background-color: #2196F3; color: white; } /* 파란색 저장 버튼 */
+        .btn-copy { background-color: #34495e; color: white; }
+        .btn-kakao { background-color: #FEE500; color: #3c1e1e; }
 
-        .btn-copy {
-            background-color: #34495e;
-            color: white;
-            box-shadow: 0 4px 12px rgba(52, 73, 94, 0.3);
+        /* 📜 보관함 스타일 */
+        .history-box {
+            margin-top: 40px; padding: 20px; background: #fff8e1;
+            border-radius: 15px; border: 2px dashed #ffca28; text-align: left;
         }
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .history-list { font-size: 0.9rem; max-height: 200px; overflow-y: auto; }
+        .history-item { padding: 8px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .del-btn { background: #ff5252; color: white; border: none; border-radius: 5px; padding: 2px 8px; cursor: pointer; font-size: 12px; }
 
-        .btn-kakao {
-            background-color: #FEE500;
-            color: #3c1e1e; /* 카카오 전용 갈색 폰트 */
-            box-shadow: 0 4px 12px rgba(254, 229, 0, 0.4);
-        }
-
-        /* 애드센스용 텍스트 콘텐츠 스타일 */
-        .content-box {
-            text-align: left;
-            margin-top: 50px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-            color: #555;
-            line-height: 1.6;
-            font-size: 0.9rem;
-        }
+        /* 콘텐츠 박스 (애드센스용) */
+        .content-box { text-align: left; margin-top: 50px; padding-top: 20px; border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; }
         .content-box h3 { color: #FF5722; margin-top: 30px; border-left: 4px solid #FF5722; padding-left: 10px; }
-        .content-box p { margin-bottom: 15px; }
-        .content-box ul { padding-left: 20px; }
-        .content-box li { margin-bottom: 8px; }
 
-/* 공 색상 */
+        /* 공 색상 */
         .yellow { background-color: #fbc400; }
         .blue { background-color: #69c8f2; }
         .red { background-color: #ff7272; }
@@ -164,8 +96,7 @@
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.1/kakao.min.js"></script>
-    
-    </head>
+</head>
 <body>
 
     <div class="container">
@@ -177,217 +108,234 @@
         </div>
 
         <h1>🎰 이번 주 주인공은 나!</h1>
-        <p class="subtitle">빅데이터 분석 기반 5게임 자동 생성</p>
+        <p class="subtitle">5게임 생성하고 <strong>보관함</strong>에 저장하세요</p>
         
         <div id="result-container">
-            <div style="color:#ccc; margin-top: 60px;">행운의 버튼을 눌러보세요</div>
+            <div style="color:#ccc; margin-top: 60px;">버튼을 눌러주세요</div>
         </div>
 
         <button class="main-btn" onclick="generateLotto()">✨ 번호 생성하기 (5게임)</button>
         
         <div id="action-box" class="action-group">
+            <button class="action-btn btn-save" onclick="saveToHistory()">
+                <span>💾</span> 이 번호 보관함에 저장
+            </button>
             <button class="action-btn btn-copy" onclick="copyNumbers()">
-                <span>📋</span> 전체 번호 복사하기
+                <span>📋</span> 전체 복사
             </button>
             <button class="action-btn btn-kakao" onclick="shareKakao()">
-                <span>💬</span> 카카오톡으로 자랑하기
+                <span>💬</span> 카카오톡 공유
             </button>
+        </div>
+
+        <div class="history-box">
+            <div class="history-header">
+                <strong style="color: #f57f17;">📂 나의 저장된 번호</strong>
+                <button onclick="clearHistory()" style="background:none; border:none; color:#999; text-decoration:underline; cursor:pointer; font-size:12px;">전체삭제</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <div style="color:#ccc; text-align:center; padding:20px;">저장된 기록이 없습니다.</div>
+            </div>
         </div>
 
         <div class="content-box">
             <h3>📊 로또 당첨 확률의 수학적 분석</h3>
-            <p>로또 6/45는 1부터 45까지의 숫자 중 6개를 선택하여 맞추는 복권 게임입니다. 수학적으로 1등 당첨 확률은 약 814만 분의 1(8,145,060분의 1)에 해당합니다. 이는 벼락을 맞을 확률보다 낮다고 알려져 있지만, 매주 수많은 당첨자가 탄생하는 희망의 게임이기도 합니다.</p>
-            <p>본 생성기는 난수 생성 알고리즘(RNG)을 통해 편향 없는 독립적인 번호를 추출하여 여러분께 제공합니다.</p>
-
-            <h3>🌙 로또 당첨 꿈 해몽과 징조</h3>
-            <p>많은 당첨자가 복권 구매 전 특별한 꿈을 꾼다고 합니다. 재미로 보는 길몽을 소개합니다.</p>
+            <p>로또 6/45는 1부터 45까지의 숫자 중 6개를 선택하여 맞추는 복권 게임입니다. 수학적으로 1등 당첨 확률은 약 814만 분의 1입니다. 본 생성기는 난수 생성 알고리즘(RNG)을 통해 편향 없는 번호를 추출합니다.</p>
+            <h3>🌙 로또 꿈 해몽</h3>
             <ul>
-                <li><strong>돼지 꿈:</strong> 재물과 복을 상징하는 가장 대표적인 길몽입니다.</li>
-                <li><strong>조상님 꿈:</strong> 조상님이 밝은 표정으로 숫자를 주거나 돈을 주는 꿈은 횡재수를 의미합니다.</li>
-                <li><strong>불이 나는 꿈:</strong> 집이 활활 타오르는 꿈은 재산이 크게 불어남을 암시합니다.</li>
+                <li><strong>돼지 꿈:</strong> 재물과 복을 상징하는 대표적 길몽</li>
+                <li><strong>불이 나는 꿈:</strong> 재산이 불어남을 암시</li>
             </ul>
-
-            <h3>⚠️ 건전한 복권 문화 캠페인</h3>
-            <p>복권은 소액으로 즐기는 건전한 레저여야 합니다. 지나친 몰입은 도박 중독으로 이어질 수 있으며, 가정 경제에 악영향을 미칠 수 있습니다. 복권기금은 소외된 이웃을 위한 공익 사업에 사용됩니다.</p>
-            <p style="font-size: 0.8em; color: #999; margin-top: 20px;">* 본 서비스는 무료로 제공되며, 생성된 번호의 당첨 결과에 대해 법적인 책임을 지지 않습니다.</p>
         </div>
     </div>
 
 <script>
-    // 👇 [1] 여기에 본인의 카카오 JavaScript 키를 따옴표 안에 붙여넣으세요!
     const YOUR_KAKAO_KEY = 'af275756cd7eed0e7fc105037bc62673'; 
-    
-    // 👇 [2] 깃허브 주소 (공유 시 이동할 주소)
     const shareUrl = 'https://mylotto123.com';
+    let currentNumbers = []; // 현재 생성된 번호들 임시 저장
 
-    // 1. 페이지가 열리면 바로 실행 (최신 회차 불러오기)
-    window.onload = function() {
-        fetchLottoNumbers();
-        
-        // 카카오톡 초기화
-        try {
-            if (!Kakao.isInitialized()) {
-                Kakao.init(YOUR_KAKAO_KEY);
-            }
-        } catch (e) {
-            console.error("카카오 초기화 실패. 키를 확인하세요.");
-        }
-    };
-
-    // 로또 최신 회차 계산 및 데이터 가져오기
-    async function fetchLottoNumbers() {
-        // 로또 1회차 날짜: 2002년 12월 7일
-        const startDate = new Date('2002-12-07');
-        const now = new Date();
-        
-        // 토요일 21시 이후면 회차를 하나 더함 (추첨 직후 반영 위해)
-        const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
-        
-        // 오늘까지 며칠 지났는지 계산해서 회차 추정
-        const timeDiff = now - startDate;
-        const daysDiff = timeDiff / (1000 * 3600 * 24);
-        let round = Math.floor(daysDiff / 7) + 1;
-        
-        if (!isSatAfter9PM && now.getDay() === 6) {
-            // 토요일인데 아직 9시 안 됐으면 저번주 거 보여줌
-            round -= 1; 
-        }
-
-        // API 주소 (우회 도로 사용) - 백틱(`) 사용됨
-        const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
-
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            const lottoData = JSON.parse(data.contents); // 실제 데이터 파싱
-
-            if (lottoData.returnValue === 'success') {
-                displayWinNumbers(lottoData);
-            } else {
-                // 혹시 아직 발표 안 났으면 전 회차 불러오기 (재시도)
-                console.log("최신 회차 데이터 없음, 이전 회차 재시도");
-                fetchLottoNumbersRetry(round - 1);
-            }
-        } catch (error) {
-            console.error('로또 정보 불러오기 실패:', error);
-        }
-    }
-
-    // 재시도 함수 (데이터가 없을 경우)
-    async function fetchLottoNumbersRetry(round) {
-        const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            const lottoData = JSON.parse(data.contents);
-            if (lottoData.returnValue === 'success') {
-                displayWinNumbers(lottoData);
-            }
-        } catch (error) { console.log('재시도 실패'); }
-    }
-
-    // 화면에 당첨 번호 뿌려주는 함수
-    function displayWinNumbers(data) {
-        const resultBox = document.getElementById('latest-win-box');
-        if (resultBox) {
-            resultBox.style.display = 'block';
-            document.getElementById('drwNo').innerText = data.drwNo;
-            document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
-            document.getElementById('bonusNo').innerText = data.bnusNo;
-
-            const winContainer = document.getElementById('win-numbers');
-            winContainer.innerHTML = ''; // 초기화
-
-            const numbers = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
-            
-            numbers.forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = `ball ${getColorClass(num)}`; // 기존 색상 함수 재사용
-                ball.textContent = num;
-                // 크기 조절 (조금 작게)
-                ball.style.width = '35px';
-                ball.style.height = '35px';
-                ball.style.fontSize = '16px';
-                ball.style.margin = '3px';
-                winContainer.appendChild(ball);
-            });
-        }
-    }
-
-    // 로또 번호 생성 함수 (버튼 클릭 시 실행)
+    // 1. 번호 생성
     function generateLotto() {
-        const numbers = [];
-        while (numbers.length < 6) {
-            const num = Math.floor(Math.random() * 45) + 1;
-            if (!numbers.includes(num)) { numbers.push(num); }
-        }
-        numbers.sort((a, b) => a - b);
+        const container = document.getElementById('result-container');
+        container.innerHTML = ''; 
+        currentNumbers = []; // 초기화
 
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = ''; 
+        for (let i = 0; i < 5; i++) {
+            const numbers = [];
+            while (numbers.length < 6) {
+                const num = Math.floor(Math.random() * 45) + 1;
+                if (!numbers.includes(num)) { numbers.push(num); }
+            }
+            numbers.sort((a, b) => a - b);
+            
+            // 저장용 데이터에 추가
+            currentNumbers.push(numbers);
 
-        numbers.forEach((num, index) => {
-            setTimeout(() => {
+            const row = document.createElement('div');
+            row.className = 'numbers-container';
+            
+            const label = document.createElement('span');
+            label.innerText = String.fromCharCode(65 + i); 
+            label.style.fontWeight = 'bold'; label.style.marginRight = '8px'; label.style.width = '20px'; label.style.color = '#555';
+            row.appendChild(label);
+
+            numbers.forEach(num => {
                 const ball = document.createElement('div');
                 ball.className = `ball ${getColorClass(num)}`;
                 ball.textContent = num;
-                resultDiv.appendChild(ball);
+                row.appendChild(ball);
+            });
 
-                if (index === 5) {
+            setTimeout(() => {
+                container.appendChild(row);
+                if (i === 4) {
                     fireConfetti();
-                    document.getElementById('copy-box').style.display = 'block';
+                    const actionBox = document.getElementById('action-box');
+                    if(actionBox) actionBox.style.display = 'flex';
                 }
-            }, index * 100);
-        });
-    }
-
-    // 폭죽 효과 함수
-    function fireConfetti() {
-        var count = 200;
-        var defaults = { origin: { y: 0.7 } };
-        function fire(particleRatio, opts) {
-            confetti(Object.assign({}, defaults, opts, {
-                particleCount: Math.floor(count * particleRatio)
-            }));
+            }, i * 150); 
         }
-        fire(0.25, { spread: 26, startVelocity: 55 });
-        fire(0.2, { spread: 60 });
-        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-        fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-        fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
-    // 번호 복사 함수
-    function copyNumbers() {
-        const balls = document.querySelectorAll('#result .ball');
-        let text = '🍀 황금손 로또 추천번호 🍀\n';
-        balls.forEach(ball => { text += ball.textContent + ' '; });
-        navigator.clipboard.writeText(text).then(() => {
-            alert('번호가 복사되었습니다!');
-        });
+    // 2. 보관함에 저장 (NEW)
+    function saveToHistory() {
+        if(currentNumbers.length === 0) return alert("먼저 번호를 생성해주세요!");
+
+        // 기존 저장된 데이터 불러오기
+        let history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
+        
+        // 날짜 생성
+        const date = new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString();
+        
+        // 데이터 추가
+        history.unshift({ date: date, nums: currentNumbers }); // 최신순 저장
+        
+        // 로컬스토리지에 저장
+        localStorage.setItem('lottoHistory', JSON.stringify(history));
+        
+        alert("보관함에 저장되었습니다! 하단에서 확인하세요.");
+        renderHistory(); // 화면 갱신
     }
 
-    // 카카오톡 공유 함수
-    function shareKakao() {
-        if (!Kakao.isInitialized()) {
-            alert('카카오톡 초기화 실패! 키를 확인해주세요.');
+    // 3. 보관함 화면 그리기 (NEW)
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        const history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
+        
+        if(history.length === 0) {
+            list.innerHTML = '<div style="color:#ccc; text-align:center; padding:20px;">저장된 기록이 없습니다.</div>';
             return;
         }
 
-        Kakao.Share.sendScrap({
-            requestUrl: shareUrl
+        list.innerHTML = '';
+        history.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.style.borderBottom = "1px solid #ddd";
+            div.style.padding = "10px 0";
+            
+            // 번호를 예쁘게 텍스트로 변환 (A: 1,2,3...)
+            let numText = "";
+            item.nums.forEach((set, i) => {
+                const label = String.fromCharCode(65 + i);
+                numText += `<div><b>${label}</b> : ${set.join(', ')}</div>`;
+            });
+
+            div.innerHTML = `
+                <div style="font-size:12px; color:#888; margin-bottom:5px;">📅 ${item.date}</div>
+                <div style="font-family:monospace; color:#333; line-height:1.4;">${numText}</div>
+            `;
+            list.appendChild(div);
         });
     }
 
-    // 공 색상 결정 함수
+    // 4. 기록 전체 삭제 (NEW)
+    function clearHistory() {
+        if(confirm("정말 모든 기록을 삭제하시겠습니까?")) {
+            localStorage.removeItem('lottoHistory');
+            renderHistory();
+        }
+    }
+
+    // 폭죽
+    function fireConfetti() {
+        if(typeof confetti === 'undefined') return; 
+        var count = 200; var defaults = { origin: { y: 0.7 } };
+        function fire(particleRatio, opts) {
+            confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * particleRatio) }));
+        }
+        fire(0.25, { spread: 26, startVelocity: 55 }); fire(0.2, { spread: 60 });
+        fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 }); fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+        fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+
+    // 복사
+    function copyNumbers() {
+        const rows = document.querySelectorAll('#result-container .numbers-container');
+        if(rows.length === 0) return;
+        let text = '🍀 황금손 로또 5게임 🍀\n\n';
+        rows.forEach((row, index) => {
+            const balls = row.querySelectorAll('.ball');
+            const label = String.fromCharCode(65 + index); 
+            text += `${label} : `;
+            balls.forEach(ball => { text += ball.textContent + ' '; });
+            text += '\n';
+        });
+        text += '\n👉 행운 확인: ' + shareUrl;
+        if(navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => alert('복사되었습니다!')).catch(() => alert('복사 실패'));
+        } else { alert('지원하지 않는 브라우저입니다.'); }
+    }
+
+    // 카카오 공유
+    function shareKakao() {
+        if (typeof Kakao === 'undefined' || !Kakao.isInitialized()) { alert('카카오톡 준비중'); return; }
+        Kakao.Share.sendScrap({ requestUrl: shareUrl });
+    }
+
     function getColorClass(num) {
-        if (num <= 10) return 'yellow';
-        else if (num <= 20) return 'blue';
-        else if (num <= 30) return 'red';
-        else if (num <= 40) return 'gray';
-        else return 'green';
+        if (num <= 10) return 'yellow'; else if (num <= 20) return 'blue'; else if (num <= 30) return 'red'; else if (num <= 40) return 'gray'; else return 'green';
+    }
+
+    window.onload = function() {
+        try { if (typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch (e) {}
+        fetchLottoNumbers();
+        renderHistory(); // 페이지 열릴 때 저장된 기록 보여주기
+    };
+
+    async function fetchLottoNumbers() {
+        const resultBox = document.getElementById('latest-win-box');
+        const startDate = new Date('2002-12-07');
+        const now = new Date();
+        const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
+        const timeDiff = now - startDate;
+        const daysDiff = timeDiff / (1000 * 3600 * 24);
+        let round = Math.floor(daysDiff / 7) + 1;
+        if (!isSatAfter9PM && now.getDay() === 6) round -= 1; 
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const response = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error("Network Error");
+            const textData = await response.text();
+            if (textData.trim().startsWith('<')) throw new Error("Blocked");
+            const data = JSON.parse(textData);
+            if (data.returnValue === 'success' && resultBox) {
+                resultBox.style.display = 'block';
+                document.getElementById('drwNo').innerText = data.drwNo;
+                document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
+                document.getElementById('bonusNo').innerText = data.bnusNo;
+                const winContainer = document.getElementById('win-numbers');
+                winContainer.innerHTML = ''; 
+                [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6].forEach(num => {
+                    const ball = document.createElement('div'); ball.className = `ball ${getColorClass(num)}`;
+                    ball.textContent = num; ball.style.width = '28px'; ball.style.height = '28px'; ball.style.fontSize = '13px';
+                    winContainer.appendChild(ball);
+                });
+            }
+        } catch (error) { if(resultBox) resultBox.style.display = 'none'; }
     }
 </script>
 </body>
 </html>
-
