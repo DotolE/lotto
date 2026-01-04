@@ -251,10 +251,12 @@
             });
         }
 
-        // 👇 사라졌던 카카오톡 공유 함수 (복구됨!)
-        function shareKakao() {
+       function shareKakao() {
+            // 👇 이동할 사이트 주소 (정확히 입력됨)
+            const myUrl = 'https://dotole.github.io/lotto';
+
             if (!Kakao.isInitialized()) {
-                alert('카카오톡 초기화 실패! 코드 맨 윗줄에 키(Key)를 넣었는지 확인해주세요.');
+                alert('카카오톡 초기화 실패! 키를 확인해주세요.');
                 return;
             }
 
@@ -265,16 +267,18 @@
                     description: '이번 주 1등 주인공은 바로 나! 행운의 번호를 확인해보세요.',
                     imageUrl: 'https://cdn-icons-png.flaticon.com/512/1055/1055646.png',
                     link: {
-                        mobileWebUrl: shareUrl,
-                        webUrl: shareUrl,
+                        // [1] 이미지나 제목을 눌렀을 때 이동할 주소
+                        mobileWebUrl: myUrl,
+                        webUrl: myUrl,
                     },
                 },
                 buttons: [
                     {
                         title: '번호 확인하러 가기',
                         link: {
-                            mobileWebUrl: shareUrl,
-                            webUrl: shareUrl,
+                            // [2] 노란 버튼을 눌렀을 때 이동할 주소
+                            mobileWebUrl: myUrl,
+                            webUrl: myUrl,
                         },
                     },
                 ],
@@ -293,4 +297,5 @@
 </body>
 
 </html>
+
 
