@@ -146,7 +146,16 @@
      crossorigin="anonymous"></script>
 </head>
 <body>
-
+<div id="latest-win-box" style="text-align: center; background-color: #fff; padding: 20px; margin: 20px auto; max-width: 90%; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: none;">
+        <h3 style="margin: 0 0 10px 0; color: #333;">🏆 <span id="drwNo">0000</span>회 당첨결과</h3>
+        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;" id="drwDate">날짜 불러오는 중...</p>
+        <div id="win-numbers" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+            </div>
+        <div style="margin-top: 10px; font-size: 0.9em; color: #333;">
+            보너스: <span id="bonusNo" style="font-weight: bold; color: #f44336;">-</span>
+        </div>
+    </div>
+    ```
     <div class="container">
         <h1>🎰 이번 주 주인공은 나!</h1>
         <p>아래 버튼을 눌러 행운의 번호를 확인하세요</p>
@@ -283,10 +292,94 @@ function shareKakao() {
             else if (num <= 40) return 'gray';
             else return 'green';
         }
+    ```javascript
+        // 👇 실제 로또 번호 불러오기 기능 (복사해서 스크립트 맨 아래에 넣으세요)
+        
+        // 1. 페이지가 열리면 바로 실행
+        window.onload = function() {
+            fetchLottoNumbers();
+        };
+
+        async function fetchLottoNumbers() {
+            // 로또 1회차 날짜: 2002년 12월 7일
+            const startDate = new Date('2002-12-07');
+            const now = new Date();
+            
+            // 토요일 21시 이후면 회차를 하나 더함 (추첨 직후 반영 위해)
+            const isSatAfter9PM = (now.getDay() === 6 && now.getHours() >= 21);
+            
+            // 오늘까지 며칠 지났는지 계산해서 회차 추정
+            const timeDiff = now - startDate;
+            const daysDiff = timeDiff / (1000 * 3600 * 24);
+            let round = Math.floor(daysDiff / 7) + 1;
+            
+            if (!isSatAfter9PM && now.getDay() === 6) {
+                // 토요일인데 아직 9시 안 됐으면 저번주 거 보여줌
+                round -= 1; 
+            }
+
+            // API 주소 (우회 도로 사용)
+            const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const lottoData = JSON.parse(data.contents); // 실제 데이터 파싱
+
+                if (lottoData.returnValue === 'success') {
+                    displayWinNumbers(lottoData);
+                } else {
+                    // 혹시 아직 발표 안 났으면 전 회차 불러오기
+                    fetchLottoNumbersRetry(round - 1);
+                }
+            } catch (error) {
+                console.error('로또 정보 불러오기 실패:', error);
+            }
+        }
+
+        // 재시도 함수 (데이터가 없을 경우)
+        async function fetchLottoNumbersRetry(round) {
+            const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const lottoData = JSON.parse(data.contents);
+                if (lottoData.returnValue === 'success') {
+                    displayWinNumbers(lottoData);
+                }
+            } catch (error) { console.log('재시도 실패'); }
+        }
+
+        // 화면에 뿌려주는 함수
+        function displayWinNumbers(data) {
+            document.getElementById('latest-win-box').style.display = 'block';
+            document.getElementById('drwNo').innerText = data.drwNo;
+            document.getElementById('drwDate').innerText = `(${data.drwNoDate} 추첨)`;
+            document.getElementById('bonusNo').innerText = data.bnusNo;
+
+            const winContainer = document.getElementById('win-numbers');
+            winContainer.innerHTML = ''; // 초기화
+
+            const numbers = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
+            
+            numbers.forEach(num => {
+                const ball = document.createElement('div');
+                ball.className = `ball ${getColorClass(num)}`; // 기존 색상 함수 재사용
+                ball.textContent = num;
+                // 크기 조절 (조금 작게)
+                ball.style.width = '35px';
+                ball.style.height = '35px';
+                ball.style.lineHeight = '35px';
+                ball.style.fontSize = '16px';
+                ball.style.margin = '3px';
+                winContainer.appendChild(ball);
+            });
+        }
     </script>
 </body>
 
 </html>
+
 
 
 
