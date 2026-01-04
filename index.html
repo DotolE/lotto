@@ -185,7 +185,7 @@
         <div class="visitor-counter">
             <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">👀 총 방문자 수</div>
             <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fmylotto123.com&count_bg=%234CAF50&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=VISITORS&edge_flat=false" 
-                 alt="방문자수 집계중"
+                 alt="방문자수"
                  onerror="this.style.display='none'">
         </div>
 
@@ -201,14 +201,12 @@
     let currentNumbers = []; 
     let html5QrCode;
 
-    // === 🛠️ 1. 폭죽 함수 ===
     function fireConfetti() {
         if(typeof confetti !== 'undefined') {
             confetti({ origin: { y: 0.7 }, spread: 70, particleCount: 100 });
         }
     }
 
-    // === 🛠️ 2. QR 코드 기능 ===
     function startQR() {
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
             alert('보안 문제로 카메라를 실행할 수 없습니다.\n(https 환경 필수)'); return;
@@ -236,7 +234,6 @@
         } else { document.getElementById('qr-reader-container').style.display = 'none'; }
     }
 
-    // === 3. 랜덤 팁 ===
     const tips = [
         { title: "📊 로또 확률의 수학적 분석", content: `<p>로또 1등 확률은 814만 분의 1입니다. 모든 번호 조합은 수학적으로 동일한 확률을 가집니다.</p>` },
         { title: "🌙 대박을 부르는 꿈 해몽", content: `<p>돼지 꿈, 조상님 꿈, 불나는 꿈은 대표적인 횡재수 길몽입니다.</p>` },
@@ -286,7 +283,6 @@
         return result;
     }
 
-    // === 4. 번호 생성 (핵심) ===
     function generateLotto() {
         const fixedInput = document.getElementById('fixed-nums').value;
         const excludeInput = document.getElementById('exclude-nums').value;
@@ -377,15 +373,17 @@
     function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
 
-    // === 5. 데이터 불러오기 순서 최적화 (팁 먼저 보여줌) ===
+    // === ⚡ 여기가 핵심! 실행 순서 재배치 ===
     window.onload = function() {
-        // [1] 먼저 눈에 보이는 것들부터 실행 (팁, 저장된 번호, 카카오)
+        // 1. [즉시 실행] 팁과 보관함은 서버 상태와 무관하게 바로 보여줌
         displayRandomTip();
         renderHistory();
+
+        // 2. 카카오 초기화 (안전하게)
         try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
         
-        // [2] 외부 통신은 가장 나중에 실행
-        fetchLottoNumbers(); 
+        // 3. [비동기] 서버 통신은 맨 마지막에 실행 (에러 나도 위쪽 기능엔 영향 없음)
+        setTimeout(fetchLottoNumbers, 0); 
     };
 
     async function fetchLottoNumbers() {
@@ -398,12 +396,13 @@
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+            // 3초 지나면 칼같이 끊어버림 (화면 멈춤 방지)
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
 
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`, { signal: controller.signal });
             clearTimeout(timeoutId);
 
-            if (!res.ok) throw new Error("Network response was not ok");
+            if (!res.ok) throw new Error("Network Error");
 
             const data = JSON.parse(await res.text());
             if (data.returnValue === 'success' && resultBox) {
@@ -417,7 +416,8 @@
                 });
             }
         } catch(e) { 
-            console.warn("당첨 정보 로딩 실패 (정상):", e);
+            // 에러가 나도 콘솔에만 찍고 사용자에게는 아무 일 없는 척함
+            console.warn("서버 연결 실패 (정상):", e);
             if(resultBox) resultBox.style.display = 'none'; 
         }
     }
