@@ -201,14 +201,10 @@
     let currentNumbers = []; 
     let html5QrCode;
 
-    // === 🛠️ 1. 폭죽 함수 복구 (중요) ===
+    // === 🛠️ 1. 폭죽 함수 ===
     function fireConfetti() {
         if(typeof confetti !== 'undefined') {
-            confetti({
-                origin: { y: 0.7 },
-                spread: 70,
-                particleCount: 100
-            });
+            confetti({ origin: { y: 0.7 }, spread: 70, particleCount: 100 });
         }
     }
 
@@ -339,7 +335,7 @@
                 setTimeout(() => {
                     container.appendChild(row);
                     if (i === 4) {
-                        fireConfetti(); // 💥 여기서 이제 에러 안남!
+                        fireConfetti();
                     }
                 }, i * 150);
             }
@@ -381,12 +377,15 @@
     function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
 
-    // === 🛠️ 5. 안전한 데이터 불러오기 ===
+    // === 5. 데이터 불러오기 순서 최적화 (팁 먼저 보여줌) ===
     window.onload = function() {
-        try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
-        fetchLottoNumbers(); 
-        renderHistory();
+        // [1] 먼저 눈에 보이는 것들부터 실행 (팁, 저장된 번호, 카카오)
         displayRandomTip();
+        renderHistory();
+        try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
+        
+        // [2] 외부 통신은 가장 나중에 실행
+        fetchLottoNumbers(); 
     };
 
     async function fetchLottoNumbers() {
@@ -398,9 +397,8 @@
         if (now.getDay() === 6 && now.getHours() < 21) round -= 1; 
 
         try {
-            // 서버 타임아웃 3초 설정 (오래 걸리면 포기)
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
 
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`, { signal: controller.signal });
             clearTimeout(timeoutId);
@@ -419,8 +417,7 @@
                 });
             }
         } catch(e) { 
-            // ⚠️ 에러 발생 시 그냥 조용히 박스 숨김 (console.warn으로 개발자만 확인)
-            console.warn("당첨 정보 로딩 실패 (무시 가능):", e);
+            console.warn("당첨 정보 로딩 실패 (정상):", e);
             if(resultBox) resultBox.style.display = 'none'; 
         }
     }
