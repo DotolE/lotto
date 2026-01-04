@@ -296,7 +296,7 @@ function shareKakao() {
     ```javascript
         // 👇 실제 로또 번호 불러오기 기능 (복사해서 스크립트 맨 아래에 넣으세요)
         
-        // 1. 페이지가 열리면 바로 실행
+       // 1. 페이지가 열리면 바로 실행
         window.onload = function() {
             fetchLottoNumbers();
         };
@@ -320,7 +320,26 @@ function shareKakao() {
             }
 
             // API 주소 (우회 도로 사용)
+            // ✅ 올바른 코드 (백틱 사용)
             const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
+            
+            // 👇 (중요) URL 정의 후 실제로 데이터를 요청하는 코드가 없어서 추가해 드립니다.
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const result = JSON.parse(data.contents); // 프록시 응답 파싱
+                    console.log(result); // 콘솔에서 결과 확인
+                    
+                    if(result.returnValue === "success") {
+                        // 여기에 화면에 번호를 표시하는 코드를 넣으세요
+                        // 예: document.getElementById("lotto-result").innerText = result.drwtNo1 + ", " + result.drwtNo2 ...
+                        alert(`${result.drwNo}회차 당첨번호: ${result.drwtNo1}, ${result.drwtNo2}, ${result.drwtNo3}, ${result.drwtNo4}, ${result.drwtNo5}, ${result.drwtNo6} + 보너스 ${result.bnusNo}`);
+                    } else {
+                        console.log("로또 정보를 불러오지 못했습니다.");
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        } // fetchLottoNumbers 함수 끝)}`;
 
             try {
                 const response = await fetch(apiUrl);
@@ -380,6 +399,7 @@ function shareKakao() {
 </body>
 
 </html>
+
 
 
 
