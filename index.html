@@ -98,12 +98,12 @@
         }
         .history-list { font-size: 0.9rem; max-height: 200px; overflow-y: auto; }
         
+        /* 팁 박스 스타일 */
         .content-box { 
-            text-align: left; margin-top: 50px; padding-top: 20px; 
-            border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; 
-            animation: fadeIn 0.8s;
+            text-align: left; margin-top: 20px; padding-bottom: 20px; 
+            border-bottom: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; 
         }
-        .content-box h3 { color: #FF5722; margin-top: 10px; border-left: 4px solid #FF5722; padding-left: 10px; }
+        .content-box h3 { color: #FF5722; margin-top: 0; margin-bottom: 10px; border-left: 4px solid #FF5722; padding-left: 10px; }
         .tip-badge { background: #FF5722; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; vertical-align: middle; margin-right: 5px; }
 
         .footer-info {
@@ -125,7 +125,11 @@
 <body>
 
     <div class="container">
-        <div id="latest-win-box" style="background-color: #f8f9fa; padding: 15px; margin-bottom: 20px; border-radius: 15px; display: none; border: 1px solid #eee;">
+        <div id="random-tip-area" class="content-box">
+             <div style="color:#ddd; padding:10px;">로딩중...</div>
+        </div>
+
+        <div id="latest-win-box" style="background-color: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 15px; display: none; border: 1px solid #eee;">
             <h3 style="margin: 0 0 5px 0; font-size: 1.1rem;">🏆 <span id="drwNo">0000</span>회 당첨결과</h3>
             <p style="font-size: 0.8em; color: #888; margin: 0 0 10px 0;" id="drwDate">-</p>
             <div id="win-numbers" style="display: flex; justify-content: center; gap: 4px; flex-wrap: wrap;"></div>
@@ -171,8 +175,6 @@
             </div>
             <div id="history-list" class="history-list"><div style="color:#ccc;">기록 없음</div></div>
         </div>
-        
-        <div id="random-tip-area" class="content-box"></div>
     </div>
 
     <footer class="footer-info">
@@ -201,14 +203,13 @@
     let currentNumbers = []; 
     let html5QrCode;
 
-    // ⚡ [중요] 누락되었던 폭죽 함수 복구!
+    // === 기본 함수 정의 ===
     function fireConfetti() {
         if(typeof confetti !== 'undefined') {
             confetti({ origin: { y: 0.7 }, spread: 70, particleCount: 100 });
         }
     }
 
-    // QR 코드 기능
     function startQR() {
         if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
             alert('보안 문제로 카메라를 실행할 수 없습니다.\n(https 환경 필수)'); return;
@@ -244,11 +245,29 @@
         { title: "⚠️ 건전한 복권 문화", content: `<p>복권은 소액으로 즐기는 레저입니다. 과몰입을 피하고 가볍게 즐기세요.</p>` }
     ];
 
+    // 즉시 실행용 함수들
     function displayRandomTip() {
         const tipBox = document.getElementById('random-tip-area');
+        if(!tipBox) return; // 에러 방지
         const randomIndex = Math.floor(Math.random() * tips.length);
         const selectedTip = tips[randomIndex];
         tipBox.innerHTML = `<h3><span class="tip-badge">TIP ${randomIndex + 1}</span> ${selectedTip.title}</h3>${selectedTip.content}`;
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        if(!list) return; // 에러 방지
+        const history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
+        if(history.length === 0) { list.innerHTML = '<div style="color:#ccc; text-align:center;">기록 없음</div>'; return; }
+        list.innerHTML = '';
+        history.forEach((item) => {
+            const div = document.createElement('div');
+            div.style.borderBottom = "1px solid #eee"; div.style.padding = "10px 0";
+            let numText = "";
+            item.nums.forEach((set, i) => { numText += `<div><b>${String.fromCharCode(65 + i)}</b>: ${set.join(', ')}</div>`; });
+            div.innerHTML = `<div style="font-size:11px; color:#aaa;">${item.date}</div><div style="font-family:monospace; margin-top:5px;">${numText}</div>`;
+            list.appendChild(div);
+        });
     }
 
     function toggleOptions() {
@@ -349,20 +368,6 @@
         renderHistory();
     }
 
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        const history = JSON.parse(localStorage.getItem('lottoHistory')) || [];
-        if(history.length === 0) { list.innerHTML = '<div style="color:#ccc; text-align:center;">기록 없음</div>'; return; }
-        list.innerHTML = '';
-        history.forEach((item) => {
-            const div = document.createElement('div');
-            div.style.borderBottom = "1px solid #eee"; div.style.padding = "10px 0";
-            let numText = "";
-            item.nums.forEach((set, i) => { numText += `<div><b>${String.fromCharCode(65 + i)}</b>: ${set.join(', ')}</div>`; });
-            div.innerHTML = `<div style="font-size:11px; color:#aaa;">${item.date}</div><div style="font-family:monospace; margin-top:5px;">${numText}</div>`;
-            list.appendChild(div);
-        });
-    }
     function clearHistory() { if(confirm("기록을 비우시겠습니까?")) { localStorage.removeItem('lottoHistory'); renderHistory(); } }
 
     function copyNumbers() {
@@ -374,17 +379,16 @@
     }
     function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
+    
+    // === 🚀 1. 가장 먼저 실행되는 영역 (UI 즉시 표시) ===
+    displayRandomTip();
+    renderHistory();
 
-    // ⚡ [중요] 페이지 로드 시 실행 순서 최적화
+    // === 2. 외부 통신 및 라이브러리 (천천히 실행) ===
     window.onload = function() {
-        // 1. 눈에 보이는 것들(팁, 보관함)을 무조건 먼저 실행 (0초 대기)
-        displayRandomTip();
-        renderHistory();
-
         try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
-        
-        // 2. 외부 서버 통신은 나중에 실행 (에러 나도 위 기능에 영향 없음)
-        fetchLottoNumbers(); 
+        // 서버 통신은 나중에 실행
+        setTimeout(fetchLottoNumbers, 0); 
     };
 
     async function fetchLottoNumbers() {
@@ -397,7 +401,7 @@
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
 
             const res = await fetch(`https://corsproxy.io/?${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`, { signal: controller.signal });
             clearTimeout(timeoutId);
