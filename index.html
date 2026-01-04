@@ -211,7 +211,7 @@
 
     // 페이지 로드 시 실행
     window.onload = function() {
-        // 1. 최신 당첨 번호 가져오기 (실패해도 메인 기능은 작동하도록 함)
+        // 1. 최신 당첨 번호 가져오기 (서버 교체 완료)
         fetchLottoNumbers();
         
         // 2. 카카오톡 기능 초기화
@@ -224,7 +224,7 @@
         }
     };
 
-    // 로또 최신 회차 데이터 가져오기 (안전장치 추가됨)
+    // ✅ [수정됨] 로또 당첨 정보 불러오기 (더 강력해진 기능)
     async function fetchLottoNumbers() {
         const startDate = new Date('2002-12-07');
         const now = new Date();
@@ -238,37 +238,47 @@
             round -= 1; 
         }
 
-        // 외부 API 주소 설정
-        const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
-
+        // 💡 1차 시도: corsproxy.io (더 빠름)
+        // 💡 2차 시도: allorigins.win (백업용)
+        const targetUrl = 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round;
+        
         try {
-            // 데이터 요청 (3초 안에 응답 없으면 포기하도록 설정)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초 타임아웃
-
-            const response = await fetch(apiUrl, { signal: controller.signal });
-            clearTimeout(timeoutId);
-
-            if (!response.ok) throw new Error("서버 응답 오류");
-
-            const data = await response.json();
+            // [1] 더 빠른 서버로 먼저 시도
+            const apiUrlPrimary = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+            const response = await fetch(apiUrlPrimary);
             
-            // 데이터 내용이 비정상일 경우(Oops 등) 처리
-            if (!data.contents) throw new Error("데이터 내용 없음");
+            if (!response.ok) throw new Error("1차 서버 응답 없음");
             
-            const lottoData = JSON.parse(data.contents); 
-
-            if (lottoData.returnValue === 'success') {
-                displayWinNumbers(lottoData);
+            const data = await response.json(); // 이 서버는 바로 JSON을 줍니다.
+            
+            if (data && data.returnValue === 'success') {
+                displayWinNumbers(data);
+                return; // 성공했으니 종료
             } else {
-                console.log("아직 발표 전이거나 데이터 없음");
+                throw new Error("데이터 형식 안맞음");
             }
-        } catch (error) {
-            // ⚠️ 에러가 나도 여기서 조용히 처리하고, 화면을 멈추지 않음
-            console.log('당첨 번호 불러오기 실패 (일시적 서버 오류):', error);
-            // 실패 시 당첨 결과 박스를 그냥 숨겨둠
-            const resultBox = document.getElementById('latest-win-box');
-            if(resultBox) resultBox.style.display = 'none';
+
+        } catch (error1) {
+            console.log("1차 서버 실패, 2차 서버(백업) 시도 중...");
+            
+            // [2] 실패 시 기존 서버(allorigins)로 재시도
+            try {
+                const apiUrlBackup = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+                const response = await fetch(apiUrlBackup);
+                if (!response.ok) throw new Error("2차 서버 응답 없음");
+                
+                const data = await response.json();
+                const lottoData = JSON.parse(data.contents); // 이 서버는 파싱이 필요함
+
+                if (lottoData.returnValue === 'success') {
+                    displayWinNumbers(lottoData);
+                }
+            } catch (error2) {
+                // 둘 다 실패하면 그냥 조용히 박스를 숨김 (에러창 안 뜨게)
+                console.log('당첨 번호 불러오기 모두 실패 (잠시 후 다시 시도하세요)');
+                const resultBox = document.getElementById('latest-win-box');
+                if(resultBox) resultBox.style.display = 'none';
+            }
         }
     }
 
@@ -299,7 +309,7 @@
         }
     }
 
-    // ✅ 번호 생성 함수 (버튼 클릭 시 실행되는 핵심 기능)
+    // 번호 생성 함수 (잘 작동함 - 유지)
     function generateLotto() {
         const numbers = [];
         while (numbers.length < 6) {
@@ -329,7 +339,7 @@
 
     // 폭죽 효과
     function fireConfetti() {
-        if(typeof confetti === 'undefined') return; // 라이브러리 로드 실패 시 무시
+        if(typeof confetti === 'undefined') return; 
         var count = 200;
         var defaults = { origin: { y: 0.7 } };
         function fire(particleRatio, opts) {
@@ -384,6 +394,7 @@
 </body>
 
 </html>
+
 
 
 
