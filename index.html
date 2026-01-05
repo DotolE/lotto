@@ -98,7 +98,6 @@
         }
         .history-list { font-size: 0.9rem; max-height: 200px; overflow-y: auto; }
         
-        /* 팁 박스 스타일 (위치 이동으로 인해 상단 여백 추가) */
         .content-box { 
             text-align: left; margin-top: 50px; padding-top: 20px; 
             border-top: 2px solid #eee; color: #555; line-height: 1.6; font-size: 0.9rem; 
@@ -198,6 +197,7 @@
     </footer>
 
 <script>
+    // 👇 카카오 JavaScript 키 (본인 키가 맞는지 확인하세요)
     const YOUR_KAKAO_KEY = 'af275756cd7eed0e7fc105037bc62673'; 
     const shareUrl = 'https://mylotto123.com';
     let currentNumbers = []; 
@@ -245,7 +245,6 @@
         { title: "⚠️ 건전한 복권 문화", content: `<p>복권은 소액으로 즐기는 레저입니다. 과몰입을 피하고 가볍게 즐기세요.</p>` }
     ];
 
-    // 즉시 실행용 함수들
     function displayRandomTip() {
         const tipBox = document.getElementById('random-tip-area');
         if(!tipBox) return; 
@@ -377,16 +376,58 @@
         rows.forEach((r, i) => { t += String.fromCharCode(65+i) + ': ' + r.innerText.replace(String.fromCharCode(65+i), '').trim().replace(/\n/g, ' ') + '\n'; });
         navigator.clipboard.writeText(t).then(()=>alert('복사되었습니다!')).catch(()=>alert('실패'));
     }
-    function shareKakao() { if(typeof Kakao !== 'undefined') Kakao.Share.sendScrap({ requestUrl: shareUrl }); }
+
     function getColorClass(n) { if(n<=10) return 'yellow'; if(n<=20) return 'blue'; if(n<=30) return 'red'; if(n<=40) return 'gray'; return 'green'; }
     
+    // === 🔥 카카오톡 공유 기능 (새로 변경됨) ===
+    function shareKakao() {
+        try {
+            if (typeof Kakao === 'undefined') {
+                alert('카카오톡 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+                return;
+            }
+            if (!Kakao.isInitialized()) {
+                Kakao.init(YOUR_KAKAO_KEY);
+            }
+            // sendScrap 대신 sendDefault 사용 (무조건 보임)
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: '💰 황금손 로또 - 무료 번호 생성기',
+                    description: '빅데이터 기반 추천 번호와 당첨 결과를 확인해보세요!',
+                    imageUrl: 'https://cdn-icons-png.flaticon.com/512/1055/1055646.png',
+                    link: {
+                        mobileWebUrl: shareUrl,
+                        webUrl: shareUrl,
+                    },
+                },
+                buttons: [
+                    {
+                        title: '대박 번호 받으러 가기',
+                        link: {
+                            mobileWebUrl: shareUrl,
+                            webUrl: shareUrl,
+                        },
+                    },
+                ],
+            });
+        } catch (e) {
+            console.error(e);
+            alert('카카오톡 공유에 실패했습니다. (키 설정 또는 도메인 등록 확인 필요)');
+        }
+    }
+
     // === 🚀 1. 가장 먼저 실행되는 영역 (UI 즉시 표시) ===
     displayRandomTip();
     renderHistory();
 
     // === 2. 외부 통신 및 라이브러리 (천천히 실행) ===
     window.onload = function() {
-        try { if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) Kakao.init(YOUR_KAKAO_KEY); } catch(e){}
+        try { 
+            if(typeof Kakao !== 'undefined' && !Kakao.isInitialized()) {
+                Kakao.init(YOUR_KAKAO_KEY);
+            } 
+        } catch(e){}
         // 서버 통신은 나중에 실행
         setTimeout(fetchLottoNumbers, 0); 
     };
